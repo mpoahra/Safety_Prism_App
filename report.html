@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>گزارش بازرسی برق</title>
+
+    <style>
+        body { font-family: 'Tahoma', sans-serif; direction: rtl; margin: 20px; }
+        h1, h2 { text-align: center; color: #333; }
+        table { width: 80%; margin: 20px auto; border-collapse: collapse; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
+        th { background-color: #f2f2f2; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .pass { color: #28a745; font-weight: bold; }
+        .fail { color: #dc3545; font-weight: bold; }
+    </style>
+
+</head>
+<body>
+    <h1>گزارش بازرسی برق</h1>
+    <h2>محل: Building A, Panel 2 | تاریخ: 2024-08-18</h2>
+    <table>
+
+    <tr>
+        <th>نوع آزمون</th>
+        <th>شماره مدار</th>
+        <th>نتیجه</th>
+    </tr>
+
+
+        <tr>
+            <td>Insulation Resistance</td>
+            <td>5</td>
+            <td class="pass">PASS</td>
+        </tr>
+
+        <tr>
+            <td>Loop Impedance</td>
+            <td>8</td>
+            <td class="fail">FAIL</td>
+        </tr>
+
+    </table>
+</body>
+</html>

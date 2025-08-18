@@ -1,0 +1,12 @@
+Test Location: Building A, Panel 2
+Date: 2024-08-18
+
+Test: Insulation Resistance
+Circuit: 5
+L-N: >500 MOhms
+Result: PASS
+
+Test: Loop Impedance
+Circuit: 8
+Zs: 0.41 Ohms
+Result: FAIL
