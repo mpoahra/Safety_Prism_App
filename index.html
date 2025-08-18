@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منشور ایمنی - پلتفرم هوشمند تحلیل حوادث</title>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0D1B2A;
+            --bg-light: #F0F4F8;
+            --primary: #1B263B;
+            --secondary: #415A77;
+            --accent: #00EAD3;
+            --text-light: #E0E1DD;
+            --text-dark: #0D1B2A;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            scroll-behavior: smooth;
+        }
+        .section-card {
+            background-color: #FFFFFF;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07), 0 8px 10px -6px rgba(0, 0, 0, 0.07);
+        }
+        .main-action-button {
+            background: linear-gradient(135deg, var(--accent), #00c9b7);
+            color: var(--bg-dark);
+            font-weight: 800;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem auto;
+            box-shadow: 0 5px 20px rgba(0, 234, 211, 0.3);
+            border: none;
+        }
+        .main-action-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 234, 211, 0.4);
+        }
+        .main-action-button:disabled {
+            background: #9CA3AF;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        .output-placeholder {
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #F9FAFB;
+            border: 2px dashed #E5E7EB;
+            border-radius: 0.75rem;
+            color: #9CA3AF;
+            text-align: center;
+            padding: 1rem;
+            transition: all 0.3s;
+        }
+        .dynamic-output {
+            padding: 1.5rem;
+            background-color: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        .prose {
+            font-family: 'Vazirmatn', sans-serif !important;
+        }
+        .loader {
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(13, 27, 42, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal-backdrop.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 0;
+            border-radius: 1rem;
+            max-width: 700px;
+            width: 95%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: scale(0.95);
+            transition: transform 0.3s;
+            overflow: hidden;
+        }
+        .modal-backdrop.visible .modal-content {
+            transform: scale(1);
+        }
+
+        /* --- NEW: Writing Assistant & Speech-to-Text Styles --- */
+        .input-tools-btn {
+            background: none;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.5rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .input-tools-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        .input-tools-btn.listening {
+            background-color: var(--danger);
+            color: white;
+            border-color: var(--danger);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .guide-modal-header {
+            background-color: var(--primary);
+            color: var(--accent);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .guide-modal-header h3 {
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+        .guide-modal-body {
+            padding: 2rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .guide-section {
+            margin-bottom: 2rem;
+            border-right: 3px solid var(--accent);
+            padding-right: 1rem;
+        }
+        .guide-section h4 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+        .guide-section p {
+            font-size: 0.95rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+        .guide-section ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .guide-section ul li {
+            background-color: #f9fafb;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+        .guide-modal-footer {
+            padding: 1rem 1.5rem;
+            background-color: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+        }
+        .insert-template-btn {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-modal-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Dashboard & Card Styles */
+        #analysis-dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
+        .method-card, .checklist-card { background-color: #FFFFFF; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: box-shadow 0.3s; }
+        .method-card:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+        .method-card h3 { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+        .method-card p { font-size: 0.9rem; color: var(--secondary); flex-grow: 1; margin: 0.75rem 0 1.5rem 0; }
+        .run-analysis-btn { background-color: var(--primary); color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 50px; cursor: pointer; transition: background-color 0.3s; border: none; align-self: flex-start; }
+        .run-analysis-btn:hover { background-color: var(--secondary); }
+        .run-analysis-btn:disabled { background-color: #9CA3AF; cursor: not-allowed; }
+
+        /* --- NEW CHECKLIST STYLE --- */
+        .checklist-card-new { background-color: transparent; box-shadow: none; padding: 0; }
+        .checklist-item-new { background-color: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.03); transition: all 0.2s ease-in-out; }
+        .checklist-item-new:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.07); }
+        .checklist-item-new .source-badge { background-color: #E0E7FF; color: #3730A3; font-size: 0.75rem; font-weight: bold; padding: 0.25rem 0.75rem; border-radius: 50px; flex-shrink: 0; }
+        .checklist-item-new .finding-text { color: var(--text-dark); margin: 0.75rem 0; flex-grow: 1; }
+        .checklist-item-new .radio-group-new { display: flex; gap: 0.5rem; }
+        .checklist-item-new .radio-group-new label { cursor: pointer; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border: 2px solid #e5e7eb; border-radius: 50px; transition: all 0.2s; }
+        .checklist-item-new .radio-group-new input[type="radio"] { display: none; }
+        .checklist-item-new .radio-group-new input[type="radio"]:checked + span { color: white; }
+        .checklist-item-new .radio-group-new input[value="compliant"]:checked + span { background-color: var(--success); border-color: var(--success); }
+        .checklist-item-new .radio-group-new input[value="non-compliant"]:checked + span { background-color: var(--danger); border-color: var(--danger); }
+        .checklist-item-new .radio-group-new label:hover span { border-color: var(--primary); }
+
+        .ll-section-title { font-size: 1.75rem; font-weight: 800; color: var(--primary); border-bottom: 3px solid var(--accent); padding-bottom: 0.75rem; margin-bottom: 1.5rem; display: flex; align-items: center; }
+        .ll-section-title span { background-color: var(--primary); color: var(--accent); border-radius: 50%; width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; margin-left: 1rem; font-size: 1.25rem; font-weight: 900; }
+
+        .screenplay-output { background-color: #fff; color: #000; font-family: 'Courier Prime', monospace; padding: 2rem; text-align: right; direction: ltr; }
+        .screenplay-output pre { white-space: pre-wrap; font-size: 12pt; line-height: 1.5; }
+
+        /* Visual Analysis Styles */
+        .bow-tie-wrapper{overflow-x:auto; padding: 1rem;}.bow-tie-container{display:inline-flex;align-items:center;justify-content:center;padding-bottom:1rem;min-width: 800px;}.bow-tie-knot{flex-shrink:0;width:150px;height:75px;background-color:#EF4444;color:white;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;text-align:center;z-index:10;font-size:0.9rem;font-weight:700;padding:0.25rem;box-shadow:0 4px 6px rgba(0,0,0,0.1);border:2px solid #DC2626;}.bow-tie-wing{display:flex;flex-direction:column;justify-content:space-around;gap:1.5rem;padding:0 1rem;min-width:300px;}.bow-tie-path{display:flex;align-items:center;}.bow-tie-connector{width:25px;height:2px;background-color:var(--secondary);position:relative;margin:0 0.75rem;}.bow-tie-connector::after{content:'';position:absolute;top:-5px;border-width:6px;border-style:solid;}.bow-tie-left-wing .bow-tie-connector::after{right:-8px;border-color:transparent transparent transparent var(--secondary);}.bow-tie-right-wing .bow-tie-connector::after{left:-8px;border-color:transparent var(--secondary) transparent transparent;}.bow-tie-element{min-width:130px;max-width:180px;padding:0.75rem 1rem;border-radius:0.5rem;text-align:center;cursor:pointer;transition:all 0.2s ease-in-out;font-size:0.85rem;font-weight:500;position:relative;box-shadow:0 2px 4px rgba(0,0,0,0.05);}.bow-tie-element:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.1);}.bow-tie-threat{background-color:#FEF3C7;color:#92400E;border:1px solid #FDE68A;}.bow-tie-prevention{background-color:#D1FAE5;color:#064E3B;border:1px solid #A7F3D0;font-weight:600;}.bow-tie-consequence{background-color:#FEE2E2;color:#991B1B;border:1px solid #FECACA;}.bow-tie-recovery{background-color:#DBEAFE;color:#1E40AF;border:1px solid #BFDBFE;}
+        .fishbone-wrapper { overflow-x: auto; padding: 1rem; } .fishbone-diagram { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0; padding: 2rem 1rem; min-width: 900px; } .fishbone-spine { grid-column: 2 / 3; height: 4px; background-color: var(--primary); position: relative; } .fishbone-head { position: absolute; left: -10px; top: 50%; transform: translateY(-50%); background-color: var(--primary); color: white; padding: 0.5rem 1.5rem; border-radius: 0.5rem; font-weight: bold; white-space: nowrap; } .fishbone-bones { display: flex; flex-direction: column; justify-content: space-around; height: 100%; gap: 2rem; } .fishbone-bone { display: flex; align-items: center; } .fishbone-bone-left { justify-content: flex-end; text-align: left; } .fishbone-bone-right { justify-content: flex-start; text-align: right; } .fishbone-bone .label { font-weight: bold; padding: 0 1rem; color: var(--primary); min-width: 80px; text-align: center; } .fishbone-bone .causes { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem; border-top: 2px solid var(--secondary); border-bottom: 2px solid var(--secondary); } .fishbone-bone-left .causes { border-left: 2px solid var(--secondary); border-radius: 1rem 0 0 1rem; padding-left: 1rem; } .fishbone-bone-right .causes { border-right: 2px solid var(--secondary); border-radius: 0 1rem 1rem 0; padding-right: 1rem; } .fishbone-bone .causes li { list-style: none; background: #f3f4f6; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.8rem; }
+        .swiss-cheese-model{display:flex;gap: -25px; justify-content:center;align-items:center;padding:2rem 1rem;overflow-x:auto;perspective:1000px; min-height: 250px;}.cheese-slice{position:relative;width:120px;height:180px;background:linear-gradient(135deg, #FBBF24, #F59E0B);border:3px solid #D97706;border-radius:1rem;display:flex;flex-direction:column;align-items:center;padding:0.5rem;box-shadow:5px 5px 15px rgba(0,0,0,0.3);color:#92400E;font-weight:bold;transition:transform 0.3s;}.cheese-slice:hover{transform:translateZ(20px) scale(1.05);}.slice-label{background:rgba(255,255,255,0.8);padding:0.1rem 0.5rem;border-radius:1rem;font-size:0.8rem;text-align:center;margin-bottom:0.5rem;z-index:1;}.hole{position:absolute;width:25px;height:25px;background:#F0F4F8;border-radius:50%;border:2px solid #D97706;box-shadow:inset 2px 2px 5px rgba(0,0,0,0.2);}.hole-label{font-size:0.75rem;position:absolute;background:rgba(0,0,0,0.7);color:white;padding:2px 5px;border-radius:4px;white-space:nowrap;transform:translateX(-50%);z-index:2;opacity:0;transition:opacity 0.3s;pointer-events:none;}.hole:hover .hole-label{opacity:1;}
+        .jha-table { width: 100%; border-collapse: collapse; margin-top: 1rem; } .jha-table th, .jha-table td { border: 1px solid #ddd; padding: 0.75rem; text-align: right; font-size: 0.9rem; } .jha-table th { background-color: var(--primary); color: white; font-weight: bold; } .jha-table tr:nth-child(even) { background-color: #f9fafb; }
+
+        /* --- NEW & IMPROVED PRINT STYLES --- */
+        @media print {
+            body, html { background: #fff !important; color: #000 !important; }
+            body > *:not(main) { display: none; }
+            main > section:not(#lesson-learned-package) { display: none; }
+            #lesson-learned-package { display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 0; }
+            #lesson-learned-package > .text-center { display: none; }
+            #ll-content-wrapper.section-card { box-shadow: none !important; border: none !important; padding: 1cm !important; }
+            .ll-card { page-break-inside: avoid; }
+            .ll-section-title { border-color: #000; color: #000; }
+            .ll-section-title span { background-color: #000; color: #fff; }
+            .bow-tie-wrapper, .swiss-cheese-model, .fishbone-wrapper { overflow: visible !important; page-break-inside: avoid; }
+        }
+
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <header class="bg-primary shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <svg width="48" height="48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g transform="translate(50,50) rotate(-10)"><path d="M0 -45 L39 22.5 L-39 22.5 Z" fill="#1B263B" stroke="#00EAD3" stroke-width="4"/><path d="M-60 22.5 L0 22.5" stroke-width="5" stroke="#E0E1DD" stroke-linecap="round"/><g transform="translate(45, 22.5) rotate(10)"><path d="M0 0 L40 -15" stroke="#00EAD3" stroke-width="4" stroke-linecap="round"/><path d="M0 0 L40 0" stroke="#93C5FD" stroke-width="4" stroke-linecap="round"/><path d="M0 0 L40 15" stroke="#FFFFFF" stroke-width="4" stroke-opacity="0.8"/></g></g></svg>
+                <h1 class="text-2xl font-black text-accent">منشور ایمنی</h1>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <!-- Step 1: Input Section -->
+        <section id="input-section" class="section-card">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-primary">گام اول: شرح حادثه</h2>
+                    <p class="text-secondary mt-2">برای شروع، شرح کامل حادثه را وارد کنید.</p>
+                </div>
+                <div class="flex justify-between items-center mb-3">
+                    <label for="main-accident-description" class="block text-lg font-semibold text-secondary">شرح کامل حادثه:</label>
+                    <div class="flex items-center gap-2">
+                        <button id="speech-to-text-btn" class="input-tools-btn" title="نوشتار صوتی">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm-1 4a4 4 0 108 0V4a4 4 0 10-8 0v4zM10 15a1 1 0 001-1v-2.065a5.975 5.975 0 01-2 0V14a1 1 0 001 1z" clip-rule="evenodd" /><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.944A5.962 5.962 0 0110 5a5.962 5.962 0 015.668 3.944l.332.996a4.002 4.002 0 01-3.43.995l-.225-.067a1.996 1.996 0 00-2.69 0l-.225.067a4.002 4.002 0 01-3.43-.995l.332-.996z" /></svg>
+                        </button>
+                        <button id="open-guide-btn" class="input-tools-btn" title="دستیار هوشمند نگارش">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="main-accident-description" class="w-full p-4 border-2 border-gray-300 rounded-lg h-40 focus:border-accent focus:ring-accent transition shadow-inner" placeholder="برای دریافت بهترین تحلیل، از «دستیار هوشمند نگارش» کمک بگیرید یا با دکمه میکروفون، شرح حادثه را بیان کنید..."></textarea>
+
+                <button id="start-analysis-btn" class="main-action-button">
+                    <span>ورود به داشبورد تحلیل</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- Other sections remain the same -->
+        <section id="dashboard-section" class="hidden">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-extrabold text-primary">گام دوم: اجرای تحلیل‌ها</h2>
+                <p class="text-secondary mt-3 max-w-2xl mx-auto">از جعبه‌ابزار زیر، متدولوژی‌های مورد نظر خود را برای تحلیل حادثه انتخاب و اجرا کنید.</p>
+            </div>
+            <div id="analysis-dashboard"></div>
+            <div id="synthesis-trigger-container" class="text-center mt-12 hidden">
+                 <button id="generate-synthesis-btn" class="main-action-button bg-indigo-600 hover:bg-indigo-700 text-white">ایجاد چک‌لیست و اعتبارسنجی علل</button>
+                 <button id="generate-package-btn" class="main-action-button bg-green-600 hover:bg-green-700 hidden">ایجاد بسته آموزشی نهایی</button>
+            </div>
+        </section>
+        <section id="synthesis-section" class="hidden">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-extrabold text-primary">گام سوم: اعتبارسنجی یافته‌ها</h2>
+                <p class="text-secondary mt-3 max-w-2xl mx-auto">یافته‌های استخراج‌شده توسط هوش مصنوعی را با شواهد واقعی تیم خود مقایسه و اعتبارسنجی کنید.</p>
+            </div>
+            <div id="synthesis-checklist-container" class="checklist-card-new"></div>
+             <div class="text-center mt-8">
+                 <button id="finalize-causes-btn" class="main-action-button bg-green-600 hover:bg-green-700">نهایی‌سازی علل و درخواست اقدامات اصلاحی</button>
+            </div>
+        </section>
+        <section id="lesson-learned-package" class="hidden">
+             <div class="text-center mb-12">
+                 <h3 class="text-4xl font-extrabold text-primary">گام چهارم: بسته آموزشی نهایی</h3>
+                 <p class="mt-3 text-secondary">این خروجی نهایی، تحلیل‌های شما را به یک ابزار یادگیری قدرتمند و آماده ارائه تبدیل می‌کند.</p>
+                 <div id="final-package-actions" class="mt-6 flex justify-center flex-wrap gap-4">
+                      <button id="download-pptx-btn" class="main-action-button text-sm py-2 px-6" style="background-color: #D97706;">دانلود پاورپوینت</button>
+                      <button id="print-btn" class="main-action-button text-sm py-2 px-6" style="background-color: var(--secondary);">نسخه قابل چاپ</button>
+                 </div>
+            </div>
+            <div id="ll-content-wrapper" class="section-card space-y-8"></div>
+        </section>
+
+    </main>
+
+    <!-- Modals -->
+    <div id="error-modal" class="modal-backdrop"><div class="modal-content"><h3 class="text-xl font-bold text-red-600 mb-4">خطا</h3><p id="error-message"></p><button onclick="this.closest('.modal-backdrop').classList.remove('visible')" class="mt-6 bg-red-600 text-white px-6 py-2 rounded-full">بستن</button></div></div>
+    <div id="bowtie-modal" class="modal-backdrop"><div class="modal-content"><h3 id="bowtie-modal-title" class="text-2xl font-bold text-primary mb-4"></h3><p id="bowtie-modal-description" class="text-secondary text-right leading-relaxed"></p><button onclick="this.closest('.modal-backdrop').classList.remove('visible')" class="mt-8 bg-primary text-white px-8 py-2 rounded-full">بستن</button></div></div>
+
+    <!-- NEW: Writing Guide Modal -->
+    <div id="writing-guide-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="guide-modal-header">
+                <h3>دستیار هوشمند نگارش</h3>
+                <button id="close-guide-btn" class="text-2xl">&times;</button>
+            </div>
+            <div class="guide-modal-body">
+                <div class="guide-section">
+                    <h4>۱. صحنه‌پردازی (وضعیت قبل از حادثه)</h4>
+                    <p>داستان را از ابتدا تعریف کنید. به هوش مصنوعی کمک کنید تا شرایطی که منجر به حادثه شد را «ببیند».</p>
+                    <ul>
+                        <li>شرایط محیطی چگونه بود؟ (مثال: کارگاه کم‌نور بود، زمین لغزنده بود، صدای زیادی می‌آمد)</li>
+                        <li>فشار کاری یا زمانی وجود داشت؟ (مثال: برای تحویل سریع پروژه تحت فشار بودیم)</li>
+                        <li>وضعیت تجهیزات و ابزارها چطور بود؟ (مثال: جرثقیل قدیمی بود، ابزارها کالیبره نبودند)</li>
+                    </ul>
+                </div>
+                <div class="guide-section">
+                    <h4>۲. توالی رویدادها (شرح دقیق اقدامات)</h4>
+                    <p>به جای گفتن «اپراتور اشتباه کرد»، بگویید دقیقاً «چه کاری» انجام داد. ترتیب وقایع بسیار مهم است.</p>
+                    <ul>
+                        <li>گام اول چه بود؟ (مثال: اپراتور اسلینگ را به بار متصل کرد)</li>
+                        <li>نقطه وقوع حادثه کجا بود؟ (مثال: حین بالا بردن بار، صدای پارگی شنیده شد)</li>
+                        <li>پیامدهای فوری چه بودند؟ (مثال: بار سقوط کرد و به پمپ زیرین آسیب رساند)</li>
+                    </ul>
+                </div>
+                <div class="guide-section">
+                    <h4>۳. زمینه و منطق پنهان (چرا این کار منطقی به نظر می‌رسید؟)</h4>
+                    <p>این مهم‌ترین بخش است! به ما کمک کنید تا بفهمیم چرا اقدامات انجام شده، در آن لحظه برای فرد منطقی به نظر می‌رسید. این کار از سرزنش جلوگیری کرده و به کشف علل سیستمی کمک می‌کند.</p>
+                    <ul>
+                        <li>آیا دستورالعمل‌ها واضح و کاربردی بودند؟ آیا همیشه دنبال می‌شدند؟</li>
+                        <li>آیا راه میان‌بری برای انجام سریع‌تر یا راحت‌تر کار وجود داشت که همه از آن استفاده می‌کردند؟</li>
+                        <li>آیا تجربه‌های موفق قبلی با همین روش کار (که امروز منجر به حادثه شد) وجود داشت؟</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="guide-modal-footer">
+                <button id="insert-template-btn" class="insert-template-btn">درج قالب در شرح حادثه</button>
+                <button id="close-guide-btn-footer" class="close-modal-btn">بستن</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Global State ---
+            let analysisResults = {};
+            let synthesisChecklist = [];
+            let accidentDescription = '';
+
+            // --- DOM Elements ---
+            const lessonLearnedPackage = document.getElementById('lesson-learned-package');
+            const mainDescriptionInput = document.getElementById('main-accident-description');
+            const startAnalysisBtn = document.getElementById('start-analysis-btn');
+            const analysisDashboard = document.getElementById('analysis-dashboard');
+            const synthesisTriggerContainer = document.getElementById('synthesis-trigger-container');
+            const generateSynthesisBtn = document.getElementById('generate-synthesis-btn');
+            const synthesisChecklistContainer = document.getElementById('synthesis-checklist-container');
+            const finalizeCausesBtn = document.getElementById('finalize-causes-btn');
+            const generatePackageBtn = document.getElementById('generate-package-btn');
+            const downloadPptxBtn = document.getElementById('download-pptx-btn');
+            const printBtn = document.getElementById('print-btn');
+            const llContentWrapper = document.getElementById('ll-content-wrapper');
+            const errorModal = document.getElementById('error-modal');
+            const errorMessage = document.getElementById('error-message');
+            const bowtieModal = document.getElementById('bowtie-modal');
+            const bowtieModalTitle = document.getElementById('bowtie-modal-title');
+            const bowtieModalDescription = document.getElementById('bowtie-modal-description');
+            const guideModal = document.getElementById('writing-guide-modal');
+            const openGuideBtn = document.getElementById('open-guide-btn');
+            const closeGuideBtns = [document.getElementById('close-guide-btn'), document.getElementById('close-guide-btn-footer')];
+            const insertTemplateBtn = document.getElementById('insert-template-btn');
+            const speechToTextBtn = document.getElementById('speech-to-text-btn');
+
+            // --- Methodologies Definition ---
+            const methodologies = [
+                { id: 'narrative', title: '۱. روایت‌سازی حادثه', description: 'تبدیل گزارش خشک و فنی حادثه به یک داستان تأثیرگذار و قابل درک برای انتقال بهتر درس‌آموخته‌ها.', generator: generateNarrative, renderer: (data) => `<div class="prose max-w-none prose-lg text-justify"><p class="italic text-gray-700 leading-relaxed">${data}</p></div>` },
+                { id: 'bowtie', title: '۲. تحلیل پاپیونی (Bow-Tie)', description: 'یک روش گرافیکی برای نمایش ریسک که ارتباط بین تهدیدها، موانع و پیامدها را نشان می‌دهد.', generator: generateBowTie, renderer: renderBowTie, isVisual: true },
+                { id: '5whys', title: '۳. تحلیل ۵ چرا (5 Whys)', description: 'یک تکنیک ساده و مؤثر برای ریشه‌یابی سریع علت اصلی یک مشکل با پرسیدن مکرر سؤال «چرا؟».', generator: generate5Whys, renderer: renderMarkdown },
+                { id: 'hfacs', title: '۴. تحلیل علل ریشه‌ای (HFACS)', description: 'چارچوبی برای تحلیل و طبقه‌بندی خطاهای انسانی در حوادث، با تمرکز بر چهار سطح مختلف.', generator: generateHfacs, renderer: renderMarkdown },
+                { id: 'stamp', title: '۵. تحلیل سیستمی (STAMP)', description: 'یک مدل پیشرفته که حوادث را نتیجه نقص در ساختار کنترل ایمنی سیستم بررسی می‌کند.', generator: generateSTAMP, renderer: renderMarkdown },
+                { id: 'fram', title: '۶. تحلیل تاب‌آوری (FRAM)', description: 'روشی برای درک اینکه کارها چگونه معمولاً با موفقیت انجام می‌شوند و چگونه تغییرات روزمره منجر به شکست می‌شود.', generator: generateFRAM, renderer: renderMarkdown },
+                { id: 'swisscheese', title: '۷. مدل پنیر سوئیسی', description: 'نمایش چگونگی عبور یک خطا از لایه‌های دفاعی ناقص برای ایجاد یک حادثه.', generator: generateSwissCheese, renderer: renderSwissCheese, isVisual: true },
+                { id: 'fishbone', title: '۸. نمودار استخوان ماهی (Fishbone)', description: 'نمایش بصری علل مختلف یک رویداد، دسته‌بندی شده در گروه‌های اصلی (انسان، ماشین، روش و...).', generator: generateFishbone, renderer: renderFishbone, isVisual: true },
+                { id: 'jha', title: '۹. تحلیل خطر شغلی (JHA)', description: 'یک تحلیل بازنگرانه برای شناسایی خطرات مراحل کار و کنترل‌های لازم که باید وجود می‌داشتند.', generator: generateJHA, renderer: renderJHA },
+                { id: 'actions', title: '۱۰. اقدامات اصلاحی ترکیبی', description: 'توسعه اقدامات اصلاحی بر اساس لیست نهایی علل تأیید شده توسط تیم شما. (پس از اعتبارسنجی فعال می‌شود)', generator: generateActions, renderer: renderMarkdown, requiresSynthesis: true },
+                { id: 'expert', title: '۱۱. مشورت با متخصصین', description: 'دریافت تحلیل و پرسش‌های عمیق از پنل مجازی متخصصان ایمنی بر اساس جزئیات حادثه شما.', generator: generateExpertAnswers, renderer: renderExpertAnswers, requiresSynthesis: true },
+                { id: 'scenario', title: '۱۲. سناریونویس فیلم درس‌آموزی', description: 'تولید یک فیلم‌نامه کوتاه و حرفه‌ای بر اساس تحلیل‌های انجام‌شده برای ساخت یک ویدیوی آموزشی تأثیرگذار.', generator: generateFilmScenario, renderer: renderFilmScenario, requiresSynthesis: true }
+            ];
+
+            // --- Modal Logic ---
+            function showError(message) { errorMessage.textContent = message; errorModal.classList.add('visible'); }
+            function showBowtieModal(title, description) { bowtieModalTitle.textContent = title; bowtieModalDescription.textContent = description; bowtieModal.classList.add('visible'); }
+
+            // --- Writing Guide Logic ---
+            openGuideBtn.addEventListener('click', () => guideModal.classList.add('visible'));
+            closeGuideBtns.forEach(btn => btn.addEventListener('click', () => guideModal.classList.remove('visible')));
+            guideModal.addEventListener('click', (e) => {
+                if (e.target === guideModal) {
+                    guideModal.classList.remove('visible');
+                }
+            });
+            insertTemplateBtn.addEventListener('click', () => {
+                const template = `**۱. صحنه‌پردازی (وضعیت قبل از حادثه):**\n- شرایط محیطی (نور، آب و هوا، سر و صدا): \n- فشار کاری یا زمانی: \n- وضعیت تجهیزات و ابزارها: \n- آیا تغییر جدیدی در فرآیند یا تیم وجود داشت؟ \n\n**۲. توالی رویدادها (شرح دقیق اقدامات):**\n- گام اول: \n- گام دوم: \n- نقطه وقوع حادثه (لحظه انحراف از حالت عادی): \n\n**۳. پیامدها (نتایج فوری):**\n- آسیب به افراد: \n- آسیب به تجهیزات: \n- توقف عملیات: \n\n**۴. زمینه و منطق پنهان (چرا این اقدامات در آن لحظه منطقی به نظر می‌رسید؟):**\n- آیا دستورالعمل‌ها واضح بودند؟ آیا دنبال می‌شدند؟ \n- آیا راه میان‌بری برای انجام سریع‌تر کار وجود داشت؟ \n- آیا تجربه‌های موفق قبلی با همین روش کار، آن را تشویق می‌کرد؟ \n`;
+                mainDescriptionInput.value = template;
+                mainDescriptionInput.focus();
+                guideModal.classList.remove('visible');
+            });
+
+            // --- REVISED Speech to Text Logic ---
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                const recognition = new SpeechRecognition();
+                recognition.continuous = false; // Stop after a pause
+                recognition.lang = 'fa-IR';
+                recognition.interimResults = false; // Only get the final result
+                let isListening = false;
+
+                recognition.onstart = () => {
+                    isListening = true;
+                    speechToTextBtn.classList.add('listening');
+                    speechToTextBtn.title = 'در حال ضبط... برای توقف کلیک کنید';
+                };
+
+                recognition.onend = () => {
+                    isListening = false;
+                    speechToTextBtn.classList.remove('listening');
+                    speechToTextBtn.title = 'نوشتار صوتی';
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    showError(`خطای تشخیص گفتار: ${event.error}`);
+                };
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    const currentText = mainDescriptionInput.value;
+                    // Add a space only if there is existing text
+                    const separator = currentText.trim() ? ' ' : '';
+                    mainDescriptionInput.value += separator + transcript;
+                };
+
+                speechToTextBtn.addEventListener('click', () => {
+                    if (isListening) {
+                        recognition.stop();
+                    } else {
+                        recognition.start();
+                    }
+                });
+
+            } else {
+                speechToTextBtn.style.display = 'none';
+                console.warn('Web Speech API is not supported by this browser.');
+            }
+
+            // --- Direct Gemini API Call ---
+            async function callGeminiAPI(prompt, isJson = false) {
+                const apiKey = "کلید_API_شخصی_خود_را_اینجا_قرار_دهید";
+
+                if (apiKey === "کلید_API_شخصی_خود_را_اینجا_قرار_دهید") {
+                    showError("خطای راه‌اندازی: کلید API در کد تنظیم نشده است. لطفاً طبق راهنما، کلید خود را در فایل HTML قرار دهید.");
+                    throw new Error("API Key not set.");
+                }
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                    generationConfig: {}
+                };
+                if (isJson) payload.generationConfig.responseMimeType = "application/json";
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    const errorBody = await response.json();
+                    console.error("API Error Response:", errorBody);
+                    if(response.status === 403) {
+                         throw new Error(`خطای دسترسی (403): لطفاً مطمئن شوید که دامنه سایت خود (${window.location.hostname}) را در محدودیت‌های کلید API در کنسول گوگل کلود اضافه کرده‌اید.`);
+                    }
+                    throw new Error(`خطا در ارتباط با API: ${response.status}`);
+                }
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content?.parts?.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                }
+                if (result.candidates && result.candidates[0].finishReason === 'SAFETY') {
+                     throw new Error("پاسخ به دلیل محدودیت‌های ایمنی مسدود شد.");
+                }
+                throw new Error("پاسخ معتبری از API دریافت نشد.");
+            }
+
+            // --- UI Flow & Navigation ---
+            function showSection(sectionElement) {
+                document.querySelectorAll('main > section, #lesson-learned-package').forEach(sec => sec.classList.add('hidden'));
+                sectionElement.classList.remove('hidden');
+                window.scrollTo(0, 0);
+            }
+
+            startAnalysisBtn.addEventListener('click', () => {
+                accidentDescription = mainDescriptionInput.value.trim();
+                if (!accidentDescription) {
+                    showError('لطفاً شرح حادثه را وارد کنید.');
+                    return;
+                }
+                analysisResults = {};
+                synthesisChecklist = [];
+                initializeDashboard();
+                showSection(document.getElementById('dashboard-section'));
+            });
+
+            // --- Dashboard & Card Logic ---
+            function initializeDashboard() {
+                analysisDashboard.innerHTML = '';
+                synthesisTriggerContainer.classList.add('hidden');
+                methodologies.forEach(method => {
+                    const card = document.createElement('div');
+                    card.className = 'method-card';
+                    card.id = `card-${method.id}`;
+                    card.innerHTML = `
+                        <div>
+                            <h3>${method.title}</h3>
+                            <p>${method.description}</p>
+                        </div>
+                        <div class="mt-auto">
+                            <button class="run-analysis-btn" data-method-id="${method.id}" ${method.requiresSynthesis ? 'disabled' : ''}>شروع تحلیل</button>
+                            <div class="card-output mt-4">
+                                <div id="output-${method.id}" class="output-placeholder">خروجی تحلیل در اینجا نمایش داده می‌شود.</div>
+                            </div>
+                        </div>`;
+                    analysisDashboard.appendChild(card);
+                });
+                document.querySelectorAll('.run-analysis-btn').forEach(button => button.addEventListener('click', handleRunAnalysis));
+            }
+
+            async function handleRunAnalysis(event) {
+                const button = event.target;
+                const methodId = button.dataset.methodId;
+                const method = methodologies.find(m => m.id === methodId);
+                if (!method) return;
+
+                const outputDiv = document.getElementById(`output-${method.id}`);
+                button.disabled = true;
+                outputDiv.innerHTML = '<div class="loader mx-auto"></div>';
+
+                try {
+                    const isJsonMethod = ['bowtie', 'expert', 'synthesis', 'swisscheese', 'fishbone'].includes(method.id);
+                    const resultText = await method.generator();
+                    const result = isJsonMethod ? JSON.parse(resultText) : resultText;
+
+                    analysisResults[method.id] = result;
+                    outputDiv.innerHTML = method.renderer(result);
+                    outputDiv.classList.remove('output-placeholder');
+                    outputDiv.classList.add('dynamic-output');
+                    checkSynthesisReady();
+                } catch (error) {
+                    console.error(`Analysis failed for ${methodId}:`, error);
+                    outputDiv.innerHTML = `<p class="text-red-500">تحلیل ناموفق بود: ${error.message}</p>`;
+                } finally {
+                    button.textContent = 'تحلیل مجدد';
+                    if (!method.requiresSynthesis || (method.requiresSynthesis && analysisResults.validatedCauses)) {
+                        button.disabled = false;
+                    }
+                }
+            }
+
+            function checkSynthesisReady() {
+                const primaryAnalysesDone = ['5whys', 'hfacs', 'stamp', 'jha', 'fishbone', 'swisscheese'].some(id => analysisResults[id]);
+                if (primaryAnalysesDone) {
+                    synthesisTriggerContainer.classList.remove('hidden');
+                }
+            }
+
+            // --- Synthesis Step Logic ---
+            generateSynthesisBtn.addEventListener('click', async () => {
+                showSection(document.getElementById('synthesis-section'));
+                synthesisChecklistContainer.innerHTML = '<div class="loader mx-auto"></div>';
+
+                try {
+                    const combinedAnalyses = Object.entries(analysisResults)
+                        .filter(([key, value]) => !methodologies.find(m => m.id === key).requiresSynthesis && value)
+                        .map(([key, value]) => `## یافته‌های تحلیل ${key}:\n${typeof value === 'object' ? JSON.stringify(value, null, 2) : value}`)
+                        .join('\n\n');
+
+                    const prompt = `You are a safety analysis synthesizer. From the following combined accident analyses, extract a concise list of unique, potential contributing factors. The entire response, including all string values in the JSON, MUST be in PERSIAN. Respond ONLY with a valid JSON object. Schema: { "findings": [ { "id": number, "finding": "string (the concise factor in Persian)", "source": "string (the source analysis name in Persian, e.g., 'تحلیل ۵ چرا', 'HFACS')" } ] }. Combined Analyses in Persian:\n\n${combinedAnalyses}`;
+
+                    const resultText = await callGeminiAPI(prompt, true);
+                    synthesisChecklist = JSON.parse(resultText).findings;
+                    renderSynthesisChecklist();
+                } catch (error) {
+                    showError('خطا در ایجاد چک‌لیست تلفیقی: ' + error.message);
+                    synthesisChecklistContainer.innerHTML = '<p class="text-red-500">ایجاد چک‌لیست ناموفق بود.</p>';
+                }
+            });
+
+            function renderSynthesisChecklist() {
+                synthesisChecklistContainer.innerHTML = '';
+                synthesisChecklist.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'checklist-item-new';
+                    div.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <span class="source-badge">${item.source}</span>
+                        </div>
+                        <p class="finding-text">${item.finding}</p>
+                        <div class="radio-group-new">
+                            <label>
+                                <input type="radio" name="check-${index}" value="compliant">
+                                <span class="px-4 py-2 border-2 rounded-full">منطبق</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="check-${index}" value="non-compliant">
+                                <span class="px-4 py-2 border-2 rounded-full">نامنطبق</span>
+                            </label>
+                        </div>`;
+                    synthesisChecklistContainer.appendChild(div);
+                });
+            }
+
+            finalizeCausesBtn.addEventListener('click', () => {
+                const validatedCauses = synthesisChecklist
+                    .filter((item, index) => document.querySelector(`input[name="check-${index}"]:checked`)?.value === 'compliant')
+                    .map(item => item.finding);
+
+                if (validatedCauses.length === 0) {
+                    showError('لطفاً حداقل یک یافته را به عنوان "منطبق با شواهد" انتخاب کنید.');
+                    return;
+                }
+
+                analysisResults.validatedCauses = validatedCauses;
+                methodologies.forEach(method => {
+                    if (method.requiresSynthesis) {
+                        document.querySelector(`#card-${method.id} .run-analysis-btn`)?.removeAttribute('disabled');
+                    }
+                });
+
+                generateSynthesisBtn.classList.add('hidden');
+                generatePackageBtn?.classList.remove('hidden');
+
+                const existingMessage = synthesisTriggerContainer.querySelector('p');
+                if (existingMessage) existingMessage.remove();
+
+                const message = document.createElement('p');
+                message.className = 'text-green-600 font-bold mb-4';
+                message.textContent = 'چک‌لیست با موفقیت نهایی شد. اکنون می‌توانید تحلیل‌های نهایی را اجرا کرده و سپس بسته آموزشی را ایجاد کنید.';
+                synthesisTriggerContainer.prepend(message);
+
+                showSection(document.getElementById('dashboard-section'));
+            });
+
+            // --- Analysis Generation Functions (Prompts are the same) ---
+            async function generateSwissCheese() { const prompt = `Analyze the following incident using James Reason's Swiss Cheese Model. Identify 3 to 5 layers of defense and the holes (failures) in each. Respond ONLY with a valid JSON object, with all text in PERSIAN. Schema: { "layers": [ { "name": "string (Defense Layer Name)", "description": "string (What this layer is supposed to do)", "holes": ["string (Specific failure/hole in this layer)"] } ] }. Incident: "${accidentDescription}"`; return await callGeminiAPI(prompt, true); }
+            async function generateFishbone() { const prompt = `Create a detailed Fishbone (Ishikawa) diagram for the following incident. Categorize causes under Man, Machine, Method, Material, Environment, and Management. Provide 2-3 causes for at least 4 categories. Respond ONLY with a valid JSON object, with all text in PERSIAN. Schema: { "problem": "string (The main problem/event)", "categories": { "انسان": ["string (cause)"], "ماشین": ["string (cause)"], "روش": ["string (cause)"], "محیط": ["string (cause)"], "مدیریت": ["string (cause)"], "مواد": ["string (cause)"] } }. Incident: "${accidentDescription}"`; return await callGeminiAPI(prompt, true); }
+            async function generateJHA() { const prompt = `Perform a retrospective Job Hazard Analysis (JHA) for the tasks described in the incident. Format the output as a Markdown table with columns for "مرحله کار", "خطر شناسایی‌شده", and "اقدام کنترلی لازم". The entire response MUST be in PERSIAN. Incident: "${accidentDescription}"`; return await callGeminiAPI(prompt); }
+            async function generateActions() { if (!analysisResults.validatedCauses) { throw new Error("ابتدا باید چک‌لیست یافته‌ها را نهایی کنید."); } const prompt = `Based on the following list of VERIFIED contributing factors from a real-world incident, develop a comprehensive set of corrective actions using the hierarchy of controls. The entire response MUST be in PERSIAN using Markdown. Verified Factors: \n- ${analysisResults.validatedCauses.join('\n- ')}`; return await callGeminiAPI(prompt); }
+            async function generateExpertAnswers() { if (!analysisResults.validatedCauses) { throw new Error("ابتدا باید چک‌لیست یافته‌ها را نهایی کنید."); } const prompt = `You are a panel of three world-class safety experts (a Human Factors specialist, a Process Safety Engineer, a Systems Theorist). Based on the incident description and VERIFIED factors, generate three distinct 'Expert Answers'. Respond ONLY with a valid JSON object, with all text in PERSIAN. Schema: { "answers": [ { "expert_title": "string", "question": "string", "answer": "string" } ] }. Incident: "${accidentDescription}". Verified Factors: \n- ${analysisResults.validatedCauses.join('\n- ')}`; return await callGeminiAPI(prompt, true); }
+            async function generateBowTie() { const prompt = `You are an expert safety analyst. Analyze the following accident description. Respond ONLY with a valid JSON object, and ensure all text values are in PERSIAN. Schema: { "topEvent": "string", "threats": [{"title": "string", "description": "string"}], "preventiveBarriers": [{"title": "string", "description": "string"}], "consequences": [{"title": "string", "description": "string"}], "recoveryBarriers": [{"title": "string", "description": "string"}] }. Accident Description in Persian: "${accidentDescription}"`; return await callGeminiAPI(prompt, true); }
+            async function generateHfacs() { const prompt = `Analyze the following incident using the HFACS framework. Provide a structured analysis. The entire response MUST be in PERSIAN using Markdown. Incident in Persian: "${accidentDescription}"`; return await callGeminiAPI(prompt); }
+            async function generateNarrative() { const prompt = `Transform this technical incident report into a compelling, human-focused narrative. The entire response MUST be a single block of text in PERSIAN. Report in Persian: "${accidentDescription}"`; return await callGeminiAPI(prompt); }
+            async function generate5Whys() { const prompt = `Perform a '5 Whys' analysis for the following incident, starting with a clear problem statement. The entire response MUST be in PERSIAN using Markdown. Incident in Persian: "${accidentDescription}"`; return await callGeminiAPI(prompt); }
+            async function generateSTAMP() { const prompt = `Analyze this incident using STAMP principles (Inadequate Controls, Inadequate Feedback, Flawed Control Structure). The entire response MUST be in PERSIAN using Markdown. Incident in Persian: "${accidentDescription}"`; return await callGeminiAPI(prompt); }
+            async function generateFRAM() { const prompt = `Analyze this incident using FRAM principles. Identify key functions and how everyday performance variability could have led to failure. Do not look for root causes. The entire response MUST be in PERSIAN using Markdown. Incident in Persian: "${accidentDescription}"`; return await callGeminiAPI(prompt); }
+            async function generateFilmScenario() { if (!analysisResults.validatedCauses || !analysisResults.narrative) { throw new Error("برای تولید سناریو، ابتدا باید تحلیل‌های «روایت‌سازی» و «اعتبارسنجی علل» را انجام دهید."); } const prompt = `You are a professional screenwriter. Write a short film screenplay (5-7 scenes) in PERSIAN based on the provided accident data. Format it using standard screenplay conventions (SCENE HEADING, ACTION, CHARACTER, DIALOGUE). Context: - Accident Narrative: ${analysisResults.narrative} - Verified Root Causes: ${analysisResults.validatedCauses.join(', ')} - Corrective Actions: ${analysisResults.actions || 'Not available'}. The entire output MUST be a single block of text in PERSIAN.`; return await callGeminiAPI(prompt); }
+
+            // --- Rendering Functions ---
+            function renderMarkdown(data) {
+                let html = data
+                    .replace(/^### (.*$)/gim, '<h4 class="font-bold text-lg mt-4 mb-1">$1</h4>')
+                    .replace(/^## (.*$)/gim, '<h3 class="font-bold text-xl mt-5 mb-2">$1</h3>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/^\* (.*$)/gim, '<li>$1</li>');
+
+                html = html.replace(/<\/li><br>/g, '</li>');
+                html = html.replace(/<li>/g, '<li class="list-disc mr-6 mb-2">');
+
+                const tableRegex = /\|(.+)\|\n\|( *[-:]+ *\|)+([\s\S]*?)(?=\n\n|\n\s*$|\<br\>)/g;
+                html = html.replace(tableRegex, (match, headerRow, separator, bodyRows) => {
+                    let table = '<table class="jha-table"><thead><tr>';
+                    const headers = headerRow.split('|').slice(1, -1).map(h => `<th>${h.trim()}</th>`).join('');
+                    table += headers + '</tr></thead><tbody>';
+                    const rows = bodyRows.trim().split('\n');
+                    rows.forEach(row => {
+                        if (!row.trim() || row.includes('---')) return;
+                        table += '<tr>';
+                        const cells = row.split('|').slice(1, -1).map(c => `<td>${c.trim()}</td>`).join('');
+                        table += cells + '</tr>';
+                    });
+                    table += '</tbody></table>';
+                    return table;
+                });
+
+                return `<div class="prose prose-lg max-w-none text-justify">${html.replace(/\n/g, '<br>')}</div>`;
+            }
+
+            function renderBowTie(data) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'bow-tie-wrapper';
+                const container = document.createElement('div');
+                container.className = 'bow-tie-container';
+                const leftWing = document.createElement('div');
+                leftWing.className = 'bow-tie-wing bow-tie-left-wing';
+                const rightWing = document.createElement('div');
+                rightWing.className = 'bow-tie-wing bow-tie-right-wing';
+                const knot = document.createElement('div');
+                knot.className = 'bow-tie-knot';
+                knot.textContent = data.topEvent;
+
+                const addElement = (parent, type, item) => {
+                    const el = document.createElement('div');
+                    el.className = `bow-tie-element bow-tie-${type}`;
+                    el.textContent = item.title;
+                    el.onclick = () => showBowtieModal(item.title, item.description);
+                    parent.appendChild(el);
+                };
+
+                data.threats.forEach((threat, index) => {
+                    const prevention = data.preventiveBarriers[index] || {title: 'نامشخص', description:''};
+                    const path = document.createElement('div');
+                    path.className = 'bow-tie-path';
+                    addElement(path, 'threat', threat);
+                    path.appendChild(document.createElement('div')).className = 'bow-tie-connector';
+                    addElement(path, 'prevention', prevention);
+                    leftWing.appendChild(path);
+                });
+
+                data.consequences.forEach((consequence, index) => {
+                    const recovery = data.recoveryBarriers[index] || {title: 'نامشخص', description:''};
+                    const path = document.createElement('div');
+                    path.className = 'bow-tie-path';
+                    addElement(path, 'recovery', recovery);
+                    path.appendChild(document.createElement('div')).className = 'bow-tie-connector';
+                    addElement(path, 'consequence', consequence);
+                    rightWing.appendChild(path);
+                });
+
+                container.append(leftWing, knot, rightWing);
+                wrapper.appendChild(container);
+                return wrapper.outerHTML;
+            }
+
+            function renderExpertAnswers(data) {
+                let html = '<div class="space-y-6">';
+                data.answers.forEach(item => {
+                    html += `<div class="expert-answer border-r-4 border-blue-600 pr-4"><h5 class="font-bold text-blue-800 text-lg">${item.expert_title}</h5><p class="text-gray-800 mt-2"><strong class="text-gray-900">سوال کلیدی:</strong> ${item.question}</p><div class="prose prose-lg max-w-none text-justify text-gray-700 mt-1"><strong class="text-gray-900">تحلیل:</strong> ${item.answer}</div></div>`;
+                });
+                html += '</div>';
+                return html;
+            }
+
+            function renderFilmScenario(data) {
+                const pre = document.createElement('pre');
+                pre.textContent = data;
+                const container = document.createElement('div');
+                container.className = 'screenplay-output';
+                container.appendChild(pre);
+                return container.outerHTML;
+            }
+
+            function renderSwissCheese(data) {
+                const container = document.createElement('div');
+                container.className = 'swiss-cheese-model';
+                data.layers.forEach((layer, layerIndex) => {
+                    const slice = document.createElement('div');
+                    slice.className = 'cheese-slice';
+                    slice.style.transform = `translateX(${layerIndex * -25}px) rotateY(-15deg)`;
+                    slice.style.zIndex = data.layers.length - layerIndex;
+
+                    const label = document.createElement('div');
+                    label.className = 'slice-label';
+                    label.textContent = layer.name;
+                    slice.appendChild(label);
+
+                    layer.holes.forEach((holeText, holeIndex) => {
+                        const hole = document.createElement('div');
+                        hole.className = 'hole';
+                        const top = 30 + (holeIndex * 25) % 40;
+                        const left = 50 + (holeIndex * 15 - layerIndex * 10) % 30;
+                        hole.style.top = `${top}%`;
+                        hole.style.left = `${left}%`;
+
+                        const holeLabel = document.createElement('div');
+                        holeLabel.className = 'hole-label';
+                        holeLabel.textContent = holeText;
+                        hole.appendChild(holeLabel);
+                        holeLabel.style.bottom = '28px';
+
+                        slice.appendChild(hole);
+                    });
+                    container.appendChild(slice);
+                });
+                return container.outerHTML;
+            }
+
+            function renderFishbone(data) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'fishbone-wrapper';
+                const container = document.createElement('div');
+                container.className = 'fishbone-diagram';
+
+                const leftBones = document.createElement('div');
+                leftBones.className = 'fishbone-bones';
+
+                const rightBones = document.createElement('div');
+                rightBones.className = 'fishbone-bones';
+
+                const spineContainer = document.createElement('div');
+                spineContainer.className = 'fishbone-spine';
+                const head = document.createElement('div');
+                head.className = 'fishbone-head';
+                head.textContent = data.problem;
+                spineContainer.appendChild(head);
+
+                const categories = Object.keys(data.categories);
+                categories.forEach((category, index) => {
+                    const causes = data.categories[category];
+                    if (!causes || causes.length === 0) return;
+
+                    const bone = document.createElement('div');
+                    const causesList = document.createElement('ul');
+                    causesList.className = 'causes';
+                    causes.forEach(cause => {
+                        const li = document.createElement('li');
+                        li.textContent = cause;
+                        causesList.appendChild(li);
+                    });
+
+                    const label = document.createElement('div');
+                    label.className = 'label';
+                    label.textContent = category;
+
+                    if (index % 2 === 0) { // Even index on the left
+                        bone.className = 'fishbone-bone fishbone-bone-left';
+                        bone.append(causesList, label);
+                        leftBones.appendChild(bone);
+                    } else { // Odd index on the right
+                        bone.className = 'fishbone-bone fishbone-bone-right';
+                        bone.append(label, causesList);
+                        rightBones.appendChild(bone);
+                    }
+                });
+
+                container.append(leftBones, spineContainer, rightBones);
+                wrapper.appendChild(container);
+                return wrapper.outerHTML;
+            }
+
+            function renderJHA(data) {
+                return renderMarkdown(data);
+            }
+
+            // --- Final Package Generation & Export ---
+            generatePackageBtn?.addEventListener('click', () => {
+                if (Object.keys(analysisResults).length === 0) {
+                    showError("حداقل یک تحلیل را اجرا کنید تا بتوان بسته آموزشی را ایجاد کرد.");
+                    return;
+                }
+                llContentWrapper.innerHTML = '';
+                let sectionCounter = 1;
+
+                const createSection = (title, content) => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'll-card mb-8 p-4';
+                    sectionDiv.innerHTML = `
+                        <div class="ll-section-title"><span>${sectionCounter++}</span>${title}</div>
+                        <div class="mt-4" id="ll-output-${title.replace(/\s+/g, '-').toLowerCase()}">${content}</div>`;
+                    return sectionDiv;
+                };
+
+                methodologies.forEach(method => {
+                    if (analysisResults[method.id]) {
+                        const titleWithoutNumber = method.title.substring(method.title.indexOf('.') + 1).trim();
+                        const content = method.renderer(analysisResults[method.id]);
+                        llContentWrapper.appendChild(createSection(titleWithoutNumber, content));
+                    }
+                });
+
+                showSection(lessonLearnedPackage);
+            });
+
+            printBtn?.addEventListener('click', () => {
+                window.print();
+            });
+
+            downloadPptxBtn.addEventListener('click', async () => {
+                if (Object.keys(analysisResults).length === 0) {
+                    showError("برای دانلود، ابتدا باید حداقل یک تحلیل را اجرا کرده و سپس بسته آموزشی را ایجاد کنید.");
+                    return;
+                }
+
+                let pres = new PptxGenJS();
+                pres.rtlMode = true;
+                pres.defineLayout({ name: 'TITLE_MASTER', bkgd: '0D1B2A' });
+                pres.defineLayout({ name: 'CONTENT_MASTER', bkgd: 'F0F4F8', slideNumber: { x: 9.5, y: '95%', fontFace: 'Vazirmatn', fontSize: 10, color: '415A77', align: 'right' } });
+
+                const slideOptions = {
+                    title: { x: 0.5, y: 0.3, w: 9, h: 0.75, fontFace: 'Vazirmatn', fontSize: 32, color: '1B263B', bold: true, align: 'right' },
+                    content: { x: 0.7, y: 1.2, w: 8.6, h: 4.0, fontFace: 'Vazirmatn', fontSize: 12, color: '415A77', rtlMode: true, autoFit: true, valign: 'top' }
+                };
+
+                let titleSlide = pres.addSlide({ masterName: 'TITLE_MASTER' });
+                titleSlide.addText('منشور ایمنی', { x: 0, y: 1.5, w: '100%', align: 'center', fontFace: 'Vazirmatn', fontSize: 54, color: '00EAD3', bold: true });
+                titleSlide.addText('تحلیل جامع حادثه و درس‌آموخته‌ها', { x: 0, y: 2.7, w: '100%', align: 'center', fontFace: 'Vazirmatn', fontSize: 22, color: 'E0E1DD' });
+
+                for (const method of methodologies) {
+                    if (analysisResults[method.id]) {
+                        let slide = pres.addSlide({ masterName: 'CONTENT_MASTER' });
+                        const title = method.title.substring(method.title.indexOf('.') + 1).trim();
+                        slide.addText(title, slideOptions.title);
+
+                        if (method.isVisual) {
+                            try {
+                                const element = document.querySelector(`#ll-output-${title.replace(/\s+/g, '-').toLowerCase()} > div`);
+                                if (element) {
+                                    const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#F0F4F8' });
+                                    slide.addImage({ data: canvas.toDataURL(), x: 0.5, y: 1.2, w: 9, h: 4.5, sizing: { type: 'contain', w: 9, h: 4.5 } });
+                                }
+                            } catch (e) { console.error(`PPTX image generation failed for ${method.id}:`, e); }
+                        } else {
+                            const result = analysisResults[method.id];
+                            let textObjects = [];
+                            if (typeof result === 'string') {
+                                let cleanText = result.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s\s+/g, ' ');
+                                textObjects.push({ text: cleanText, options: { fontSize: 12, align: 'justify' } });
+                            } else if (result.answers) {
+                                 result.answers.forEach(item => {
+                                     textObjects.push({ text: item.expert_title, options: { fontSize: 16, bold: true, color: '1E40AF', breakLine: true } });
+                                     textObjects.push({ text: `سوال: ${item.question}`, options: { fontSize: 13, bold: true, breakLine: true } });
+                                     textObjects.push({ text: `تحلیل: ${item.answer}`, options: { fontSize: 12, breakLine: true, paraSpaceAfter: 10, align: 'justify' } });
+                                 });
+                            }
+                            slide.addText(textObjects, slideOptions.content);
+                        }
+                    }
+                }
+
+                let finalSlide = pres.addSlide({ masterName: 'TITLE_MASTER' });
+                finalSlide.addText('با سپاس از توجه شما', { x: 0, y: 2.25, w: '100%', align: 'center', fontFace: 'Vazirmatn', fontSize: 36, color: 'E0E1DD' });
+                finalSlide.addText('ایمنی، یک ارزش است؛ نه یک اولویت.', { x: 0, y: 3.25, w: '100%', align: 'center', fontFace: 'Vazirmatn', fontSize: 22, color: '00EAD3' });
+
+                pres.writeFile({ fileName: 'تحلیل-حادثه-منشور-ایمنی.pptx' });
+            });
+        });
+    </script>
+</body>
+</html>
