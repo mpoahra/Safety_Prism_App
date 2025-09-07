@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منشور ایمنی - پلتفرم هوشمند تحلیل حوادث</title>
+    
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap"></noscript>
+    
+    <!-- Critical CSS inlined -->
+    <style>
+        :root{--bg-dark:#0D1B2A;--bg-light:#F0F4F8;--primary:#1B263B;--secondary:#415A77;--accent:#00EAD3;--text-light:#E0E1DD;--text-dark:#0D1B2A;--success:#10B981;--danger:#EF4444;--warning:#F59E0B}
+        *{box-sizing:border-box}
+        body{font-family:'Vazirmatn',sans-serif;background-color:var(--bg-light);color:var(--text-dark);margin:0;padding:0;scroll-behavior:smooth}
+        .hidden{display:none!important}
+        .container{max-width:1200px;margin:0 auto;padding:0 1.5rem}
+        .section-card{background:#fff;border-radius:1rem;padding:2.5rem;box-shadow:0 10px 25px -5px rgba(0,0,0,0.07),0 8px 10px -6px rgba(0,0,0,0.07);margin-bottom:2rem}
+        .main-action-button{background:linear-gradient(135deg,var(--accent),#00c9b7);color:var(--bg-dark);font-weight:800;padding:1rem 2.5rem;border-radius:50px;font-size:1.25rem;cursor:pointer;transition:all 0.3s ease;display:inline-flex;align-items:center;gap:0.5rem;margin:1rem auto;box-shadow:0 5px 20px rgba(0,234,211,0.3);border:none}
+        .main-action-button:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 8px 25px rgba(0,234,211,0.4)}
+        .main-action-button:disabled{background:#9CA3AF;cursor:not-allowed;box-shadow:none;transform:none}
+        .loader{border:4px solid #e5e7eb;border-top:4px solid var(--accent);border-radius:50%;width:24px;height:24px;animation:spin 1s linear infinite;margin:0 auto}
+        @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+        .modal-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(13,27,42,0.85);backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:1000;opacity:0;visibility:hidden;transition:opacity 0.3s,visibility 0.3s}
+        .modal-backdrop.visible{opacity:1;visibility:visible}
+        .modal-content{background:#fff;padding:0;border-radius:1rem;max-width:700px;width:95%;box-shadow:0 10px 30px rgba(0,0,0,0.2);transform:scale(0.95);transition:transform 0.3s;overflow:hidden}
+        .modal-backdrop.visible .modal-content{transform:scale(1)}
+        .input-tools-btn{background:none;border:1px solid var(--primary);color:var(--primary);padding:0.5rem;width:36px;height:36px;border-radius:50%;font-size:0.8rem;font-weight:bold;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;justify-content:center}
+        .input-tools-btn:hover{background:var(--primary);color:#fff}
+        .input-tools-btn.listening{background:var(--danger);color:#fff;border-color:var(--danger);animation:pulse 1.5s infinite}
+        @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)}70%{box-shadow:0 0 0 10px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+        .text-center{text-align:center}
+        .text-3xl{font-size:1.875rem;line-height:2.25rem}
+        .text-4xl{font-size:2.25rem;line-height:2.5rem}
+        .font-bold{font-weight:700}
+        .font-extrabold{font-weight:800}
+        .text-primary{color:var(--primary)}
+        .text-secondary{color:var(--secondary)}
+        .mb-8{margin-bottom:2rem}
+        .mb-12{margin-bottom:3rem}
+        .mt-2{margin-top:0.5rem}
+        .mt-3{margin-top:0.75rem}
+        .max-w-4xl{max-width:56rem}
+        .mx-auto{margin-left:auto;margin-right:auto}
+        .flex{display:flex}
+        .justify-between{justify-content:space-between}
+        .items-center{align-items:center}
+        .gap-2{gap:0.5rem}
+        .gap-3{gap:0.75rem}
+        .block{display:block}
+        .text-lg{font-size:1.125rem;line-height:1.75rem}
+        .font-semibold{font-weight:600}
+        .w-full{width:100%}
+        .p-4{padding:1rem}
+        .border-2{border-width:2px}
+        .border-gray-300{border-color:#d1d5db}
+        .rounded-lg{border-radius:0.5rem}
+        .h-40{height:10rem}
+        .focus\:border-accent:focus{border-color:var(--accent)}
+        .focus\:ring-accent:focus{--tw-ring-color:var(--accent)}
+        .transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(0.4,0,0.2,1);transition-duration:150ms}
+        .shadow-inner{box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06)}
+        .bg-primary{background-color:var(--primary)}
+        .shadow-lg{box-shadow:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -2px rgba(0,0,0,0.05)}
+        .sticky{position:sticky}
+        .top-0{top:0}
+        .z-50{z-index:50}
+        .py-3{padding-top:0.75rem;padding-bottom:0.75rem}
+        .px-6{padding-left:1.5rem;padding-right:1.5rem}
+        .py-12{padding-top:3rem;padding-bottom:3rem}
+        .text-2xl{font-size:1.5rem;line-height:2rem}
+        .font-black{font-weight:900}
+        .text-accent{color:var(--accent)}
+        .h-6{height:1.5rem}
+        .w-6{width:1.5rem}
+        .h-5{height:1.25rem}
+        .w-5{width:1.25rem}
+        .fill{fill:currentColor}
+        .stroke{stroke:currentColor}
+        .stroke-2{stroke-width:2}
+        .stroke-linecap-round{stroke-linecap:round}
+        .stroke-linejoin-round{stroke-linejoin:round}
+        .text-red-500{color:#ef4444}
+        .text-red-600{color:#dc2626}
+        .text-green-600{color:#059669}
+        .text-green-700{color:#047857}
+        .bg-red-600{background-color:#dc2626}
+        .bg-green-600{background-color:#059669}
+        .bg-indigo-600{background-color:#4f46e5}
+        .bg-indigo-700{background-color:#4338ca}
+        .hover\:bg-indigo-700:hover{background-color:#4338ca}
+        .hover\:bg-green-700:hover{background-color:#047857}
+        .text-white{color:#fff}
+        .px-6{padding-left:1.5rem;padding-right:1.5rem}
+        .py-2{padding-top:0.5rem;padding-bottom:0.5rem}
+        .rounded-full{border-radius:9999px}
+        .text-sm{font-size:0.875rem;line-height:1.25rem}
+        .mt-6{margin-top:1.5rem}
+        .mt-8{margin-top:2rem}
+        .space-y-8>*+*{margin-top:2rem}
+        .prose{color:#374151;max-width:none}
+        .prose-lg{font-size:1.125rem;line-height:1.7777778}
+        .prose h3{font-size:1.25rem;font-weight:600;margin-top:1.5rem;margin-bottom:0.5rem}
+        .prose h4{font-size:1.125rem;font-weight:600;margin-top:1.25rem;margin-bottom:0.5rem}
+        .prose p{margin-top:1.25rem;margin-bottom:1.25rem}
+        .prose strong{font-weight:600}
+        .prose ul{list-style-type:disc;margin-top:1.25rem;margin-bottom:1.25rem;padding-right:1.5rem}
+        .prose li{margin-top:0.5rem;margin-bottom:0.5rem}
+        .prose table{width:100%;border-collapse:collapse;margin-top:1rem}
+        .prose th,.prose td{border:1px solid #d1d5db;padding:0.75rem;text-align:right;font-size:0.9rem}
+        .prose th{background:var(--primary);color:#fff;font-weight:700}
+        .prose tr:nth-child(even){background:#f9fafb}
+        .text-justify{text-align:justify}
+        .max-w-none{max-width:none}
+        .italic{font-style:italic}
+        .text-gray-700{color:#374151}
+        .leading-relaxed{line-height:1.625}
+        .output-placeholder{min-height:150px;display:flex;align-items:center;justify-content:center;background:#f9fafb;border:2px dashed #e5e7eb;border-radius:0.75rem;color:#9ca3af;text-align:center;padding:1rem;transition:all 0.3s}
+        .dynamic-output{padding:1.5rem;background:#f9fafb;border:1px solid #e5e7eb;border-radius:0.75rem;overflow:hidden}
+        .method-card{background:#fff;border-radius:1rem;padding:1.5rem;box-shadow:0 4px 6px rgba(0,0,0,0.05);display:flex;flex-direction:column;transition:box-shadow 0.3s;margin-bottom:1rem}
+        .method-card:hover{box-shadow:0 10px 20px rgba(0,0,0,0.08)}
+        .method-card h3{font-size:1.5rem;font-weight:800;color:var(--primary);margin:0 0 0.75rem 0}
+        .method-card p{font-size:0.9rem;color:var(--secondary);flex-grow:1;margin:0.75rem 0 1.5rem 0}
+        .run-analysis-btn{background:var(--primary);color:#fff;font-weight:600;padding:0.75rem 1.5rem;border-radius:50px;cursor:pointer;transition:background-color 0.3s;border:none;align-self:flex-start}
+        .run-analysis-btn:hover{background:var(--secondary)}
+        .run-analysis-btn:disabled{background:#9ca3af;cursor:not-allowed}
+        .mt-auto{margin-top:auto}
+        .mt-4{margin-top:1rem}
+        .card-output{margin-top:1rem}
+        .mx-auto{margin-left:auto;margin-right:auto}
+        .grid{display:grid}
+        .grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}
+        .gap-2rem{gap:2rem}
+        @media (min-width:768px){.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+        @media (min-width:1024px){.lg\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+        .checklist-card-new{background:transparent;box-shadow:none;padding:0}
+        .checklist-item-new{background:#fff;border:1px solid #e5e7eb;border-radius:0.75rem;padding:1.5rem;margin-bottom:1rem;box-shadow:0 2px 4px rgba(0,0,0,0.03);transition:all 0.2s ease}
+        .checklist-item-new:hover{transform:translateY(-3px);box-shadow:0 5px 15px rgba(0,0,0,0.07)}
+        .checklist-item-new .source-badge{background:#e0e7ff;color:#3730a3;font-size:0.75rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:50px;flex-shrink:0}
+        .checklist-item-new .finding-text{color:var(--text-dark);margin:0.75rem 0;flex-grow:1}
+        .checklist-item-new .radio-group-new{display:flex;gap:0.5rem}
+        .checklist-item-new .radio-group-new label{cursor:pointer;display:flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;border:2px solid #e5e7eb;border-radius:50px;transition:all 0.2s}
+        .checklist-item-new .radio-group-new input[type="radio"]{display:none}
+        .checklist-item-new .radio-group-new input[type="radio"]:checked+span{color:#fff}
+        .checklist-item-new .radio-group-new input[value="compliant"]:checked+span{background:var(--success);border-color:var(--success)}
+        .checklist-item-new .radio-group-new input[value="non-compliant"]:checked+span{background:var(--danger);border-color:var(--danger)}
+        .checklist-item-new .radio-group-new label:hover span{border-color:var(--primary)}
+        .ll-section-title{font-size:1.75rem;font-weight:800;color:var(--primary);border-bottom:3px solid var(--accent);padding-bottom:0.75rem;margin-bottom:1.5rem;display:flex;align-items:center}
+        .ll-section-title span{background:var(--primary);color:var(--accent);border-radius:50%;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;margin-left:1rem;font-size:1.25rem;font-weight:900}
+        .ll-card{margin-bottom:2rem;padding:1rem}
+        .screenplay-output{background:#fff;color:#000;font-family:'Courier Prime',monospace;padding:2rem;text-align:right;direction:ltr}
+        .screenplay-output pre{white-space:pre-wrap;font-size:12pt;line-height:1.5;margin:0}
+        .bow-tie-wrapper{overflow-x:auto;padding:1rem}
+        .bow-tie-container{display:inline-flex;align-items:center;justify-content:center;padding-bottom:1rem;min-width:800px}
+        .bow-tie-knot{flex-shrink:0;width:150px;height:75px;background:#ef4444;color:#fff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;text-align:center;z-index:10;font-size:0.9rem;font-weight:700;padding:0.25rem;box-shadow:0 4px 6px rgba(0,0,0,0.1);border:2px solid #dc2626}
+        .bow-tie-wing{display:flex;flex-direction:column;justify-content:space-around;gap:1.5rem;padding:0 1rem;min-width:300px}
+        .bow-tie-path{display:flex;align-items:center}
+        .bow-tie-connector{width:25px;height:2px;background:var(--secondary);position:relative;margin:0 0.75rem}
+        .bow-tie-connector::after{content:'';position:absolute;top:-5px;border-width:6px;border-style:solid}
+        .bow-tie-left-wing .bow-tie-connector::after{right:-8px;border-color:transparent transparent transparent var(--secondary)}
+        .bow-tie-right-wing .bow-tie-connector::after{left:-8px;border-color:transparent var(--secondary) transparent transparent}
+        .bow-tie-element{min-width:130px;max-width:180px;padding:0.75rem 1rem;border-radius:0.5rem;text-align:center;cursor:pointer;transition:all 0.2s ease;font-size:0.85rem;font-weight:500;position:relative;box-shadow:0 2px 4px rgba(0,0,0,0.05)}
+        .bow-tie-element:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.1)}
+        .bow-tie-threat{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+        .bow-tie-prevention{background:#d1fae5;color:#064e3b;border:1px solid #a7f3d0;font-weight:600}
+        .bow-tie-consequence{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+        .bow-tie-recovery{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe}
+        .fishbone-wrapper{overflow-x:auto;padding:1rem}
+        .fishbone-diagram{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:0;padding:2rem 1rem;min-width:900px}
+        .fishbone-spine{grid-column:2/3;height:4px;background:var(--primary);position:relative}
+        .fishbone-head{position:absolute;left:-10px;top:50%;transform:translateY(-50%);background:var(--primary);color:#fff;padding:0.5rem 1.5rem;border-radius:0.5rem;font-weight:700;white-space:nowrap}
+        .fishbone-bones{display:flex;flex-direction:column;justify-content:space-around;height:100%;gap:2rem}
+        .fishbone-bone{display:flex;align-items:center}
+        .fishbone-bone-left{justify-content:flex-end;text-align:left}
+        .fishbone-bone-right{justify-content:flex-start;text-align:right}
+        .fishbone-bone .label{font-weight:700;padding:0 1rem;color:var(--primary);min-width:80px;text-align:center}
+        .fishbone-bone .causes{display:flex;flex-direction:column;gap:0.5rem;padding:0.5rem;border-top:2px solid var(--secondary);border-bottom:2px solid var(--secondary)}
+        .fishbone-bone-left .causes{border-left:2px solid var(--secondary);border-radius:1rem 0 0 1rem;padding-left:1rem}
+        .fishbone-bone-right .causes{border-right:2px solid var(--secondary);border-radius:0 1rem 1rem 0;padding-right:1rem}
+        .fishbone-bone .causes li{list-style:none;background:#f3f4f6;padding:0.25rem 0.75rem;border-radius:1rem;font-size:0.8rem}
+        .swiss-cheese-model{display:flex;gap:-25px;justify-content:center;align-items:center;padding:2rem 1rem;overflow-x:auto;perspective:1000px;min-height:250px}
+        .cheese-slice{position:relative;width:120px;height:180px;background:linear-gradient(135deg,#fbbf24,#f59e0b);border:3px solid #d97706;border-radius:1rem;display:flex;flex-direction:column;align-items:center;padding:0.5rem;box-shadow:5px 5px 15px rgba(0,0,0,0.3);color:#92400e;font-weight:700;transition:transform 0.3s}
+        .cheese-slice:hover{transform:translateZ(20px) scale(1.05)}
+        .slice-label{background:rgba(255,255,255,0.8);padding:0.1rem 0.5rem;border-radius:1rem;font-size:0.8rem;text-align:center;margin-bottom:0.5rem;z-index:1}
+        .hole{position:absolute;width:25px;height:25px;background:#f0f4f8;border-radius:50%;border:2px solid #d97706;box-shadow:inset 2px 2px 5px rgba(0,0,0,0.2)}
+        .hole-label{font-size:0.75rem;position:absolute;background:rgba(0,0,0,0.7);color:#fff;padding:2px 5px;border-radius:4px;white-space:nowrap;transform:translateX(-50%);z-index:2;opacity:0;transition:opacity 0.3s;pointer-events:none}
+        .hole:hover .hole-label{opacity:1}
+        .jha-table{width:100%;border-collapse:collapse;margin-top:1rem}
+        .jha-table th,.jha-table td{border:1px solid #ddd;padding:0.75rem;text-align:right;font-size:0.9rem}
+        .jha-table th{background:var(--primary);color:#fff;font-weight:700}
+        .jha-table tr:nth-child(even){background:#f9fafb}
+        .expert-answer{border-right:4px solid #2563eb;padding-right:1rem}
+        .expert-answer h5{font-weight:700;color:#1e40af;font-size:1.125rem;margin:0 0 0.5rem 0}
+        .expert-answer p{color:#1f2937;margin:0.5rem 0}
+        .expert-answer .prose{color:#374151}
+        .expert-answer strong{color:#111827}
+        @media print{body,html{background:#fff!important;color:#000!important}body>*:not(main){display:none}main>section:not(#lesson-learned-package){display:none}#lesson-learned-package{display:block!important;position:absolute;left:0;top:0;width:100%;padding:0}#lesson-learned-package>.text-center{display:none}#ll-content-wrapper.section-card{box-shadow:none!important;border:none!important;padding:1cm!important}.ll-card{page-break-inside:avoid}.ll-section-title{border-color:#000;color:#000}.ll-section-title span{background:#000;color:#fff}.bow-tie-wrapper,.swiss-cheese-model,.fishbone-wrapper{overflow:visible!important;page-break-inside:avoid}}
+    </style>
+    
+    <!-- Load non-critical CSS asynchronously -->
+    <link rel="preload" href="https://cdn.tailwindcss.com?plugins=typography" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.tailwindcss.com?plugins=typography"></noscript>
+</head>
+<body>
+    <header class="bg-primary shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <svg width="48" height="48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="translate(50,50) rotate(-10)">
+                        <path d="M0 -45 L39 22.5 L-39 22.5 Z" fill="#1B263B" stroke="#00EAD3" stroke-width="4"/>
+                        <path d="M-60 22.5 L0 22.5" stroke-width="5" stroke="#E0E1DD" stroke-linecap="round"/>
+                        <g transform="translate(45, 22.5) rotate(10)">
+                            <path d="M0 0 L40 -15" stroke="#00EAD3" stroke-width="4" stroke-linecap="round"/>
+                            <path d="M0 0 L40 0" stroke="#93C5FD" stroke-width="4" stroke-linecap="round"/>
+                            <path d="M0 0 L40 15" stroke="#FFFFFF" stroke-width="4" stroke-opacity="0.8"/>
+                        </g>
+                    </g>
+                </svg>
+                <h1 class="text-2xl font-black text-accent">منشور ایمنی</h1>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <!-- Step 1: Input Section -->
+        <section id="input-section" class="section-card">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-primary">گام اول: شرح حادثه</h2>
+                    <p class="text-secondary mt-2">برای شروع، شرح کامل حادثه را وارد کنید.</p>
+                </div>
+                <div class="flex justify-between items-center mb-3">
+                    <label for="main-accident-description" class="block text-lg font-semibold text-secondary">شرح کامل حادثه:</label>
+                    <div class="flex items-center gap-2">
+                        <button id="speech-to-text-btn" class="input-tools-btn" title="نوشتار صوتی">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm-1 4a4 4 0 108 0V4a4 4 0 10-8 0v4zM10 15a1 1 0 001-1v-2.065a5.975 5.975 0 01-2 0V14a1 1 0 001 1z" clip-rule="evenodd"/>
+                                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.944A5.962 5.962 0 0110 5a5.962 5.962 0 015.668 3.944l.332.996a4.002 4.002 0 01-3.43.995l-.225-.067a1.996 1.996 0 00-2.69 0l-.225.067a4.002 4.002 0 01-3.43-.995l.332-.996z"/>
+                            </svg>
+                        </button>
+                        <button id="open-guide-btn" class="input-tools-btn" title="دستیار هوشمند نگارش">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="main-accident-description" class="w-full p-4 border-2 border-gray-300 rounded-lg h-40 focus:border-accent focus:ring-accent transition shadow-inner" placeholder="برای دریافت بهترین تحلیل، از «دستیار هوشمند نگارش» کمک بگیرید یا با دکمه میکروفون، شرح حادثه را بیان کنید..."></textarea>
+
+                <button id="start-analysis-btn" class="main-action-button">
+                    <span>ورود به داشبورد تحلیل</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="hidden">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-extrabold text-primary">گام دوم: اجرای تحلیل‌ها</h2>
+                <p class="text-secondary mt-3 max-w-2xl mx-auto">از جعبه‌ابزار زیر، متدولوژی‌های مورد نظر خود را برای تحلیل حادثه انتخاب و اجرا کنید.</p>
+            </div>
+            <div id="analysis-dashboard" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2rem"></div>
+            <div id="synthesis-trigger-container" class="text-center mt-12 hidden">
+                <button id="generate-synthesis-btn" class="main-action-button bg-indigo-600 hover:bg-indigo-700 text-white">ایجاد چک‌لیست و اعتبارسنجی علل</button>
+                <button id="generate-package-btn" class="main-action-button bg-green-600 hover:bg-green-700 hidden">ایجاد بسته آموزشی نهایی</button>
+            </div>
+        </section>
+
+        <!-- Synthesis Section -->
+        <section id="synthesis-section" class="hidden">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-extrabold text-primary">گام سوم: اعتبارسنجی یافته‌ها</h2>
+                <p class="text-secondary mt-3 max-w-2xl mx-auto">یافته‌های استخراج‌شده توسط هوش مصنوعی را با شواهد واقعی تیم خود مقایسه و اعتبارسنجی کنید.</p>
+            </div>
+            <div id="synthesis-checklist-container" class="checklist-card-new"></div>
+            <div class="text-center mt-8">
+                <button id="finalize-causes-btn" class="main-action-button bg-green-600 hover:bg-green-700">نهایی‌سازی علل و درخواست اقدامات اصلاحی</button>
+            </div>
+        </section>
+
+        <!-- Lesson Learned Package -->
+        <section id="lesson-learned-package" class="hidden">
+            <div class="text-center mb-12">
+                <h3 class="text-4xl font-extrabold text-primary">گام چهارم: بسته آموزشی نهایی</h3>
+                <p class="mt-3 text-secondary">این خروجی نهایی، تحلیل‌های شما را به یک ابزار یادگیری قدرتمند و آماده ارائه تبدیل می‌کند.</p>
+                <div id="final-package-actions" class="mt-6 flex justify-center flex-wrap gap-4">
+                    <button id="download-pptx-btn" class="main-action-button text-sm py-2 px-6" style="background-color: #D97706;">دانلود پاورپوینت</button>
+                    <button id="print-btn" class="main-action-button text-sm py-2 px-6" style="background-color: var(--secondary);">نسخه قابل چاپ</button>
+                </div>
+            </div>
+            <div id="ll-content-wrapper" class="section-card space-y-8"></div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="error-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold text-red-600 mb-4">خطا</h3>
+            <p id="error-message"></p>
+            <button onclick="this.closest('.modal-backdrop').classList.remove('visible')" class="mt-6 bg-red-600 text-white px-6 py-2 rounded-full">بستن</button>
+        </div>
+    </div>
+
+    <div id="bowtie-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h3 id="bowtie-modal-title" class="text-2xl font-bold text-primary mb-4"></h3>
+            <p id="bowtie-modal-description" class="text-secondary text-right leading-relaxed"></p>
+            <button onclick="this.closest('.modal-backdrop').classList.remove('visible')" class="mt-8 bg-primary text-white px-8 py-2 rounded-full">بستن</button>
+        </div>
+    </div>
+
+    <!-- Writing Guide Modal -->
+    <div id="writing-guide-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="guide-modal-header">
+                <h3>دستیار هوشمند نگارش</h3>
+                <button id="close-guide-btn" class="text-2xl">&times;</button>
+            </div>
+            <div class="guide-modal-body">
+                <div class="guide-section">
+                    <h4>۱. صحنه‌پردازی (وضعیت قبل از حادثه)</h4>
+                    <p>داستان را از ابتدا تعریف کنید. به هوش مصنوعی کمک کنید تا شرایطی که منجر به حادثه شد را «ببیند».</p>
+                    <ul>
+                        <li>شرایط محیطی چگونه بود؟ (مثال: کارگاه کم‌نور بود، زمین لغزنده بود، صدای زیادی می‌آمد)</li>
+                        <li>فشار کاری یا زمانی وجود داشت؟ (مثال: برای تحویل سریع پروژه تحت فشار بودیم)</li>
+                        <li>وضعیت تجهیزات و ابزارها چطور بود؟ (مثال: جرثقیل قدیمی بود، ابزارها کالیبره نبودند)</li>
+                    </ul>
+                </div>
+                <div class="guide-section">
+                    <h4>۲. توالی رویدادها (شرح دقیق اقدامات)</h4>
+                    <p>به جای گفتن «اپراتور اشتباه کرد»، بگویید دقیقاً «چه کاری» انجام داد. ترتیب وقایع بسیار مهم است.</p>
+                    <ul>
+                        <li>گام اول چه بود؟ (مثال: اپراتور اسلینگ را به بار متصل کرد)</li>
+                        <li>نقطه وقوع حادثه کجا بود؟ (مثال: حین بالا بردن بار، صدای پارگی شنیده شد)</li>
+                        <li>پیامدهای فوری چه بودند؟ (مثال: بار سقوط کرد و به پمپ زیرین آسیب رساند)</li>
+                    </ul>
+                </div>
+                <div class="guide-section">
+                    <h4>۳. زمینه و منطق پنهان (چرا این کار منطقی به نظر می‌رسید؟)</h4>
+                    <p>این مهم‌ترین بخش است! به ما کمک کنید تا بفهمیم چرا اقدامات انجام شده، در آن لحظه برای فرد منطقی به نظر می‌رسید. این کار از سرزنش جلوگیری کرده و به کشف علل سیستمی کمک می‌کند.</p>
+                    <ul>
+                        <li>آیا دستورالعمل‌ها واضح و کاربردی بودند؟ آیا همیشه دنبال می‌شدند؟</li>
+                        <li>آیا راه میان‌بری برای انجام سریع‌تر یا راحت‌تر کار وجود داشت که همه از آن استفاده می‌کردند؟</li>
+                        <li>آیا تجربه‌های موفق قبلی با همین روش کار (که امروز منجر به حادثه شد) وجود داشت؟</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="guide-modal-footer">
+                <button id="insert-template-btn" class="insert-template-btn">درج قالب در شرح حادثه</button>
+                <button id="close-guide-btn-footer" class="close-modal-btn">بستن</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load external libraries asynchronously -->
+    <script>
+        // Load external libraries asynchronously to improve initial page load
+        function loadExternalLibraries() {
+            const scripts = [
+                'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+                'https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js'
+            ];
+            
+            let loadedCount = 0;
+            const totalScripts = scripts.length;
+            
+            scripts.forEach(src => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.async = true;
+                script.onload = () => {
+                    loadedCount++;
+                    if (loadedCount === totalScripts) {
+                        // All external libraries loaded
+                        console.log('External libraries loaded successfully');
+                    }
+                };
+                script.onerror = () => {
+                    console.error(`Failed to load script: ${src}`);
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // Load libraries after DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadExternalLibraries);
+        } else {
+            loadExternalLibraries();
+        }
+    </script>
+
+    <!-- Main application script -->
+    <script src="app.js" defer></script>
+</body>
+</html>
