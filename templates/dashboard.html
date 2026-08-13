@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HSE Control Center</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+body{font-family:Tahoma,Arial,sans-serif;background:#f4f7f9;color:#20313d;margin:0}.wrap{max-width:1400px;margin:auto;padding:28px}.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.head h1{margin:0;color:#0f3d56}.badge{padding:8px 12px;border-radius:999px;background:#e8f7ef;color:#157347;font-size:12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}.card{background:#fff;border:1px solid #e4eaee;border-radius:16px;padding:18px;box-shadow:0 5px 20px #102b3d0d}.kpi{font-size:32px;font-weight:800;margin-top:8px}.muted{color:#7a8b96;font-size:12px}.actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:20px}.upload{border:1px dashed #b8c7d0;padding:16px;border-radius:12px;background:#fbfcfd}.upload button{margin-top:8px;padding:9px 14px;border:0;border-radius:8px;background:#0f3d56;color:white;cursor:pointer}.charts{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-top:18px}.chartbox{height:320px}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px;border-bottom:1px solid #edf1f3;text-align:right;font-size:12px}@media(max-width:900px){.charts{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head"><div><h1>مرکز فرماندهی HSE</h1><div class="muted">مدیریت گزارش‌ها، ناایمنی‌ها و اقدامات اصلاحی</div></div><div class="badge">سامانه فعال</div></div>
+
+  <div class="grid">
+    <div class="card"><div class="muted">کل گزارش‌ها</div><div id="kReports" class="kpi">0</div></div>
+    <div class="card"><div class="muted">پرونده‌های باز</div><div id="kOpen" class="kpi">0</div></div>
+    <div class="card"><div class="muted">کل اقدامات اصلاحی</div><div id="kActions" class="kpi">0</div></div>
+    <div class="card"><div class="muted">اقدامات معوق</div><div id="kOverdue" class="kpi" style="color:#dc3545">0</div></div>
+    <div class="card"><div class="muted">اقدامات بسته‌شده</div><div id="kClosed" class="kpi" style="color:#198754">0</div></div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h3>ورود و بروزرسانی داده‌های CSV</h3>
+    <div class="actions">
+      <form class="upload" data-kind="reports"><b>۱. گزارش‌های ایمنی</b><input type="file" name="file" accept=".csv" required><br><button>Import</button></form>
+      <form class="upload" data-kind="actions"><b>۲. اقدامات اصلاحی</b><input type="file" name="file" accept=".csv" required><br><button>Import</button></form>
+      <form class="upload" data-kind="people"><b>۳. داده‌های نفرات / اطلاعات تکمیلی</b><input type="file" name="file" accept=".csv" required><br><button>Import</button></form>
+    </div>
+    <div id="importResult" class="muted" style="margin-top:12px"></div>
+  </div>
+
+  <div class="charts">
+    <div class="card"><h3>روند گزارش‌ها</h3><div class="chartbox"><canvas id="trend"></canvas></div></div>
+    <div class="card"><h3>وضعیت اقدامات</h3><div class="chartbox"><canvas id="status"></canvas></div></div>
+  </div>
+
+  <div class="charts">
+    <div class="card"><h3>اعمال ناایمن / شرایط ناایمن</h3><div class="chartbox"><canvas id="types"></canvas></div></div>
+    <div class="card"><h3>دستگاه سلامت</h3><p class="muted">برای اجرای بررسی سرویس</p><button onclick="health()">تست Backend</button><pre id="healthBox"></pre></div>
+  </div>
+
+  <div class="card" style="margin-top:18px"><h3>آخرین گزارش‌ها</h3><div style="overflow:auto"><table class="table"><thead><tr><th>#</th><th>گزارش‌دهنده</th><th>واحد</th><th>نوع</th><th>ریسک</th><th>وضعیت</th><th>شرح</th></tr></thead><tbody id="reportsBody"></tbody></table></div></div>
+
+  <div style="margin-top:20px"><a href="/legacy" target="_blank">مشاهده نسخه قبلی «منشور ایمنی»</a></div>
+</div>
+<script>
+let charts={};
+async function health(){const r=await fetch('/api/health');document.getElementById('healthBox').textContent=await r.text();}
+function draw(id,type,labels,datasets){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false}})}
+async function load(){
+ const a=await fetch('/api/dashboard/analytics').then(r=>r.json());
+ const k=a.kpi||{}; document.getElementById('kReports').textContent=k.reports||0;document.getElementById('kOpen').textContent=k.open_reports||0;document.getElementById('kActions').textContent=k.actions||0;document.getElementById('kOverdue').textContent=k.overdue||0;document.getElementById('kClosed').textContent=k.closed_actions||0;
+ draw('trend','line',a.trend.labels,[{label:'گزارش‌ها',data:a.trend.reports,borderWidth:3,tension:.3},{label:'اقدامات',data:a.trend.actions,borderWidth:3,tension:.3}]);
+ draw('status','doughnut',a.action_status.labels,[{data:a.action_status.values,borderWidth:2}]);
+ draw('types','doughnut',a.act_condition.labels,[{data:a.act_condition.values,borderWidth:2}]);
+ const rows=await fetch('/api/reports').then(r=>r.json()); document.getElementById('reportsBody').innerHTML=rows.map(x=>`<tr><td>${x.id}</td><td>${x.reporter||''}</td><td>${x.department||''}</td><td>${x.observation_type||''}</td><td>${x.risk_level||''}</td><td>${x.status||''}</td><td>${(x.description||'').slice(0,100)}</td></tr>`).join('');
+}
+for(const form of document.querySelectorAll('form[data-kind]'))form.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(form);const kind=form.dataset.kind;const r=await fetch('/api/import/'+kind,{method:'POST',body:fd});const data=await r.json();document.getElementById('importResult').textContent=r.ok?`Import ${kind}: جدید ${data.inserted} | بروزرسانی ${data.updated} | خطا ${data.errors}`:`خطا: ${data.error||'Unknown error'}`; if(r.ok)load();});
+load();setInterval(load,60000);
+</script>
+</body>
+</html>
