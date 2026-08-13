@@ -8,6 +8,8 @@
     <!-- Core Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -275,6 +277,23 @@
         .swiss-cheese-model{display:flex;gap: -25px; justify-content:center;align-items:center;padding:2rem 1rem;overflow-x:auto;perspective:1000px; min-height: 250px;}.cheese-slice{position:relative;width:120px;height:180px;background:linear-gradient(135deg, #FBBF24, #F59E0B);border:3px solid #D97706;border-radius:1rem;display:flex;flex-direction:column;align-items:center;padding:0.5rem;box-shadow:5px 5px 15px rgba(0,0,0,0.3);color:#92400E;font-weight:bold;transition:transform 0.3s;}.cheese-slice:hover{transform:translateZ(20px) scale(1.05);}.slice-label{background:rgba(255,255,255,0.8);padding:0.1rem 0.5rem;border-radius:1rem;font-size:0.8rem;text-align:center;margin-bottom:0.5rem;z-index:1;}.hole{position:absolute;width:25px;height:25px;background:#F0F4F8;border-radius:50%;border:2px solid #D97706;box-shadow:inset 2px 2px 5px rgba(0,0,0,0.2);}.hole-label{font-size:0.75rem;position:absolute;background:rgba(0,0,0,0.7);color:white;padding:2px 5px;border-radius:4px;white-space:nowrap;transform:translateX(-50%);z-index:2;opacity:0;transition:opacity 0.3s;pointer-events:none;}.hole:hover .hole-label{opacity:1;}
         .jha-table { width: 100%; border-collapse: collapse; margin-top: 1rem; } .jha-table th, .jha-table td { border: 1px solid #ddd; padding: 0.75rem; text-align: right; font-size: 0.9rem; } .jha-table th { background-color: var(--primary); color: white; font-weight: bold; } .jha-table tr:nth-child(even) { background-color: #f9fafb; }
 
+
+        /* HSE CSV Command Center */
+        .hse-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+        .hse-upload-card { border: 2px dashed #cbd5e1; border-radius: 1rem; padding: 1.25rem; background: #f8fafc; transition: all 0.2s ease; }
+        .hse-upload-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .hse-upload-card input { width: 100%; margin-top: 0.75rem; font-size: 0.85rem; }
+        .hse-kpi { background: linear-gradient(135deg, #ffffff, #f8fafc); border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; box-shadow: 0 4px 10px rgba(15,23,42,.05); }
+        .hse-kpi strong { display: block; font-size: 2rem; color: var(--primary); margin-top: .25rem; }
+        .hse-table { width: 100%; border-collapse: collapse; }
+        .hse-table th, .hse-table td { padding: .8rem; border-bottom: 1px solid #e5e7eb; text-align: right; }
+        .hse-table th { color: var(--primary); font-weight: 800; background: #f8fafc; }
+        .hse-badge { display: inline-flex; padding: .25rem .7rem; border-radius: 999px; font-weight: 800; font-size: .75rem; }
+        .hse-badge-danger { background: #fee2e2; color: #991b1b; }
+        .hse-badge-warning { background: #fef3c7; color: #92400e; }
+        .hse-badge-success { background: #d1fae5; color: #065f46; }
+        .hse-chart-box { height: 320px; }
+
         /* --- NEW & IMPROVED PRINT STYLES --- */
         @media print {
             body, html { background: #fff !important; color: #000 !important; }
@@ -303,6 +322,57 @@
     </header>
 
     <main class="container mx-auto px-6 py-12">
+
+
+        <!-- HSE CSV Command Center -->
+        <section id="hse-command-center" class="section-card mb-10">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-black text-primary">مرکز فرماندهی HSE برای پیگیری شرایط، اعمال و تابلوهای ناایمن</h2>
+                <p class="text-secondary mt-2">سه فایل CSV را بارگذاری کنید تا گزارش‌ها، اقدامات اصلاحی، موارد معوق، رتبه گزارش‌دهندگان و روند بهبود ایمنی به‌صورت خودکار تحلیل شود.</p>
+            </div>
+
+            <div class="hse-grid mb-6">
+                <label class="hse-upload-card">
+                    <strong>گزارش شرایط ناایمن</strong>
+                    <span class="block text-sm text-secondary mt-1">CSV گزارش‌ها، شرایط یا نقاط ناایمن</span>
+                    <input id="unsafe-condition-csv" type="file" accept=".csv,text/csv">
+                </label>
+                <label class="hse-upload-card">
+                    <strong>کارت بازدید ایمنی</strong>
+                    <span class="block text-sm text-secondary mt-1">CSV اعمال ناایمن، بازدیدها و مشاهده‌ها</span>
+                    <input id="safety-card-csv" type="file" accept=".csv,text/csv">
+                </label>
+                <label class="hse-upload-card">
+                    <strong>اصلاح تابلوهای فرسوده</strong>
+                    <span class="block text-sm text-secondary mt-1">CSV اقدامات اصلاحی و وضعیت اصلاح</span>
+                    <input id="signage-action-csv" type="file" accept=".csv,text/csv">
+                </label>
+            </div>
+
+            <div class="text-center">
+                <button id="import-hse-csv-btn" class="main-action-button">ایمپورت و بروزرسانی داشبورد HSE</button>
+                <p id="hse-import-status" class="text-sm text-secondary mt-2">هنوز فایلی بارگذاری نشده است.</p>
+            </div>
+
+            <div class="hse-grid mt-8" id="hse-kpis">
+                <div class="hse-kpi">کل گزارش‌ها<strong>0</strong></div>
+                <div class="hse-kpi">اقدامات باز<strong>0</strong></div>
+                <div class="hse-kpi">اقدامات معوق<strong>0</strong></div>
+                <div class="hse-kpi">نرخ اصلاح<strong>0٪</strong></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                <div class="dynamic-output"><h3 class="font-black text-xl text-primary mb-4">روند ماهانه گزارش و اصلاح</h3><div class="hse-chart-box"><canvas id="hseTrendChart"></canvas></div></div>
+                <div class="dynamic-output"><h3 class="font-black text-xl text-primary mb-4">وضعیت اقدامات اصلاحی</h3><div class="hse-chart-box"><canvas id="hseActionChart"></canvas></div></div>
+                <div class="dynamic-output"><h3 class="font-black text-xl text-primary mb-4">Pareto علل / موضوعات ناایمنی</h3><div class="hse-chart-box"><canvas id="hseParetoChart"></canvas></div></div>
+                <div class="dynamic-output"><h3 class="font-black text-xl text-primary mb-4">عمل ناایمن / شرایط ناایمن / تابلو</h3><div class="hse-chart-box"><canvas id="hseTypeChart"></canvas></div></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                <div class="dynamic-output overflow-x-auto"><h3 class="font-black text-xl text-primary mb-4">اقداماتی که باید تا اصلاح نهایی پیگیری شوند</h3><table class="hse-table"><thead><tr><th>موضوع</th><th>مسئول</th><th>وضعیت</th><th>مهلت</th></tr></thead><tbody id="hse-open-actions"><tr><td colspan="4">داده‌ای وجود ندارد.</td></tr></tbody></table></div>
+                <div class="dynamic-output overflow-x-auto"><h3 class="font-black text-xl text-primary mb-4">رتبه‌بندی گزارش‌دهندگان</h3><table class="hse-table"><thead><tr><th>رتبه</th><th>نام</th><th>تعداد</th><th>کیفیت</th></tr></thead><tbody id="hse-reporters"><tr><td colspan="4">داده‌ای وجود ندارد.</td></tr></tbody></table></div>
+            </div>
+        </section>
 
         <!-- Step 1: Input Section -->
         <section id="input-section" class="section-card">
@@ -413,6 +483,106 @@
             </div>
         </div>
     </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInputs = ['unsafe-condition-csv', 'safety-card-csv', 'signage-action-csv'];
+            const importBtn = document.getElementById('import-hse-csv-btn');
+            const statusEl = document.getElementById('hse-import-status');
+            let hseTrendChart, hseActionChart, hseParetoChart, hseTypeChart;
+
+            const norm = (value) => String(value ?? '').trim();
+            const pick = (row, keys) => {
+                const normalized = Object.fromEntries(Object.entries(row).map(([k, v]) => [norm(k).replace(/\s+/g, ''), v]));
+                for (const key of keys) {
+                    const compact = key.replace(/\s+/g, '');
+                    if (normalized[compact] !== undefined && norm(normalized[compact])) return norm(normalized[compact]);
+                }
+                return '';
+            };
+            const isClosed = (status) => /بسته|انجام|اصلاح شد|closed|done|complete/i.test(status);
+            const parseDate = (value) => {
+                const text = norm(value).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+                const date = new Date(text);
+                return Number.isNaN(date.getTime()) ? null : date;
+            };
+            const monthKey = (date) => date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}` : 'بدون تاریخ';
+            const increment = (map, key, amount = 1) => map.set(key || 'نامشخص', (map.get(key || 'نامشخص') || 0) + amount);
+
+            function readCsv(input, sourceType) {
+                return new Promise((resolve, reject) => {
+                    const file = input.files?.[0];
+                    if (!file) return resolve([]);
+                    Papa.parse(file, {
+                        header: true,
+                        skipEmptyLines: true,
+                        transformHeader: h => norm(h),
+                        complete: ({ data, errors }) => errors.length ? reject(errors[0]) : resolve(data.map(row => ({ ...row, __sourceType: sourceType }))),
+                        error: reject
+                    });
+                });
+            }
+
+            function normalizeRows(rows) {
+                return rows.map((row, index) => {
+                    const date = parseDate(pick(row, ['تاریخ', 'تاریخ گزارش', 'created_at', 'date']));
+                    const dueDate = parseDate(pick(row, ['مهلت', 'تاریخ مهلت', 'due_date', 'deadline']));
+                    const title = pick(row, ['شرح', 'شرح گزارش', 'موضوع', 'عنوان', 'مورد ناایمن', 'اقدام اصلاحی', 'description']) || `رکورد ${index + 1}`;
+                    const status = pick(row, ['وضعیت', 'status', 'وضعیت اقدام', 'نتیجه']);
+                    const type = pick(row, ['نوع', 'نوع مشاهده', 'observation_type']) || row.__sourceType;
+                    const reporter = pick(row, ['گزارش دهنده', 'گزارش‌دهنده', 'نام گزارش دهنده', 'reporter', 'بازدیدکننده']);
+                    const owner = pick(row, ['مسئول', 'مسئول اقدام', 'owner', 'responsible']);
+                    const rootCause = pick(row, ['علت', 'علت ریشه ای', 'علت ریشه‌ای', 'root_cause', 'دسته بندی', 'واحد']);
+                    const qualityFields = ['شرح', 'اقدام اصلاحی', 'مسئول', 'مهلت', 'عکس', 'توضیحات اصلاح'].filter(key => pick(row, [key])).length;
+                    return { title, status, type, reporter, owner, rootCause, date, dueDate, quality: Math.min(100, 40 + qualityFields * 10) };
+                });
+            }
+
+            function renderChart(current, canvasId, config) {
+                if (current) current.destroy();
+                return new Chart(document.getElementById(canvasId), { ...config, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', rtl: true, textDirection: 'rtl' } }, ...config.options } });
+            }
+
+            function updateDashboard(records) {
+                const today = new Date();
+                const openActions = records.filter(r => !isClosed(r.status));
+                const overdue = openActions.filter(r => r.dueDate && r.dueDate < today);
+                const closed = records.filter(r => isClosed(r.status));
+                const closureRate = records.length ? Math.round((closed.length / records.length) * 100) : 0;
+                document.getElementById('hse-kpis').innerHTML = `
+                    <div class="hse-kpi">کل گزارش‌ها<strong>${records.length}</strong></div>
+                    <div class="hse-kpi">اقدامات باز<strong>${openActions.length}</strong></div>
+                    <div class="hse-kpi">اقدامات معوق<strong>${overdue.length}</strong></div>
+                    <div class="hse-kpi">نرخ اصلاح<strong>${closureRate}٪</strong></div>`;
+
+                const months = new Map(), actions = new Map(), causes = new Map(), types = new Map(), reporters = new Map();
+                records.forEach(r => { increment(months, monthKey(r.date)); if (isClosed(r.status)) increment(actions, monthKey(r.date)); increment(causes, r.rootCause || r.title.slice(0, 35)); increment(types, r.type); if (r.reporter) { const item = reporters.get(r.reporter) || { count: 0, quality: 0 }; item.count++; item.quality += r.quality; reporters.set(r.reporter, item); } });
+                const labels = [...months.keys()].sort();
+                hseTrendChart = renderChart(hseTrendChart, 'hseTrendChart', { type: 'line', data: { labels, datasets: [{ label: 'گزارش‌ها', data: labels.map(l => months.get(l) || 0), borderWidth: 3, tension: .35 }, { label: 'اصلاح‌شده', data: labels.map(l => actions.get(l) || 0), borderWidth: 3, tension: .35 }] }, options: { scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } } });
+                hseActionChart = renderChart(hseActionChart, 'hseActionChart', { type: 'doughnut', data: { labels: ['باز', 'بسته‌شده', 'معوق'], datasets: [{ data: [openActions.length, closed.length, overdue.length] }] }, options: { cutout: '65%' } });
+                const topCauses = [...causes.entries()].sort((a,b) => b[1]-a[1]).slice(0, 10);
+                hseParetoChart = renderChart(hseParetoChart, 'hseParetoChart', { type: 'bar', data: { labels: topCauses.map(x => x[0]), datasets: [{ label: 'تعداد', data: topCauses.map(x => x[1]) }] }, options: { indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } } });
+                hseTypeChart = renderChart(hseTypeChart, 'hseTypeChart', { type: 'doughnut', data: { labels: [...types.keys()], datasets: [{ data: [...types.values()] }] }, options: { cutout: '60%' } });
+
+                document.getElementById('hse-open-actions').innerHTML = (overdue.concat(openActions).slice(0, 10).map(r => `<tr><td>${r.title}</td><td>${r.owner || 'نامشخص'}</td><td><span class="hse-badge ${r.dueDate && r.dueDate < today ? 'hse-badge-danger' : 'hse-badge-warning'}">${r.dueDate && r.dueDate < today ? 'معوق' : 'باز'}</span></td><td>${r.dueDate ? r.dueDate.toLocaleDateString('fa-IR') : 'ثبت نشده'}</td></tr>`).join('')) || '<tr><td colspan="4">اقدام باز یا معوقی وجود ندارد.</td></tr>';
+                document.getElementById('hse-reporters').innerHTML = ([...reporters.entries()].map(([name, v]) => ({ name, count: v.count, quality: Math.round(v.quality / v.count) })).sort((a,b) => (b.count*2+b.quality)-(a.count*2+a.quality)).slice(0, 10).map((r, i) => `<tr><td>${i + 1}</td><td>${r.name}</td><td>${r.count}</td><td><span class="hse-badge hse-badge-success">${r.quality}/100</span></td></tr>`).join('')) || '<tr><td colspan="4">گزارش‌دهنده‌ای شناسایی نشد.</td></tr>';
+            }
+
+            importBtn.addEventListener('click', async () => {
+                try {
+                    statusEl.textContent = 'در حال خواندن و تحلیل CSVها...';
+                    const rows = (await Promise.all(fileInputs.map((id, idx) => readCsv(document.getElementById(id), ['شرایط ناایمن', 'عمل ناایمن', 'تابلو ناایمن'][idx])))).flat();
+                    updateDashboard(normalizeRows(rows));
+                    statusEl.textContent = `${rows.length} رکورد با موفقیت ایمپورت و داشبورد بروزرسانی شد.`;
+                } catch (error) {
+                    statusEl.textContent = 'خطا در خواندن CSV. لطفاً ساختار و Encoding فایل را بررسی کنید.';
+                    console.error('HSE CSV import error:', error);
+                }
+            });
+            updateDashboard([]);
+        });
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
